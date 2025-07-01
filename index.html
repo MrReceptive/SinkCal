@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Satisfactory AWESOME Sink Coupon Optimizer</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body { font-family: system-ui, sans-serif; background: #23272e; color: #f6f6f7; padding: 24px; }
+    input, button { font-size: 1em; margin: 3px 0 10px 0; padding: 3px 8px; }
+    .result { background: #181a1b; border-radius: 10px; padding: 12px; margin-top: 10px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border-bottom: 1px solid #333; padding: 6px 10px; }
+    th { background: #32363e; }
+    tr:nth-child(even) { background: #262a30; }
+    .small { font-size: 0.95em; opacity: 0.7; }
+  </style>
+</head>
+<body>
+  <h2>AWESOME Sink Coupon Optimizer</h2>
+  <div>
+    <label>How many coupons do you want? <input id="numCoupons" type="number" value="1" min="1" max="100"></label><br>
+    <label>Current points (or points to next coupon): <input id="points" type="number" value="0" min="0"></label>
+    <button onclick="calc()">Find Best Items</button>
+    <span class="small" id="fetchStatus"></span>
+  </div>
+  <div id="invWrap"></div>
+  <div class="result" id="output"></div>
+  <script>
+const wikiURL = "https://satisfactory.wiki.gg/wiki/AWESOME_Sink/Theoretical_maximum_of_points";
+let itemPoints = {}, sortedItems = [], couponFormula = n => Math.pow(2, n) * 1000, itemInputs = {};
+
+// --- Fetch item/point table from wiki ---
+async function getTable() {
+  document.getElementById("fetchStatus").innerText = "Loading point table…";
+  // Use AllOrigins to bypass CORS, or fallback to demo data
+  let data;
+  try {
+    let r = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(wikiURL)}`);
+    data = (await r.json()).contents;
+  } catch {
+    document.getElementById("fetchStatus").innerText = "Could not fetch data. Using offline data.";
+    data = "";
+  }
+  // Parse HTML for the relevant table (row: item name, point value)
+  let rows = [];
+  try {
+    let div = document.createElement("div");
+    div.innerHTML = data;
+    // Look for the table: "List of all items and their point values"
+    let tables = div.querySelectorAll("table");
+    for (let table of tables) {
+      if ((table.previousElementSibling && table.previousElementSibling.textContent.includes("List of all items"))) {
+        rows = [...table.querySelectorAll("tr")];
+        break;
+      }
+    }
+    if (rows.length < 2) throw "no table";
+  } catch { rows = []; }
+  if (rows.length < 2) { // fallback demo data
+    itemPoints = { "Iron Ingot": 2, "Caterium Ingot": 12, "Turbo Motor": 3960, "Supercomputer": 1620 };
+  } else {
+    itemPoints = {};
+    for (let i = 1; i < rows.length; ++i) {
+      let cols = rows[i].querySelectorAll("td");
+      if (cols.length >= 3) {
+        let name = cols[1].innerText.trim();
+        let pts = parseFloat(cols[2].innerText.replace(/,/g,""));
+        if (name && pts > 0) itemPoints[name] = pts;
+      }
+    }
+  }
+  sortedItems = Object.entries(itemPoints).sort((a,b)=>b[1]-a[1]);
+  document.getElementById("fetchStatus").innerText = `Loaded ${Object.keys(itemPoints).length} items.`;
+  buildInventoryInputs();
+}
+getTable();
+
+function buildInventoryInputs() {
+  let html = `<details><summary>Show/Enter Inventory (optional)</summary>
+    <div style="max-height:200px;overflow:auto"><table>`;
+  for (let [item, pts] of sortedItems.slice(0, 50)) { // limit to 50 for space
+    html += `<tr>
+      <td>${item}</td>
+      <td><input type="number" min="0" id="inv_${item.replace(/[^a-zA-Z0-9]/g,'_')}" style="width:70px"></td>
+      <td class="small">(${pts} pts each)</td>
+    </tr>`;
+  }
+  html += `</table><span class="small">Leave blank for items you don’t own</span></div></details>`;
+  document.getElementById("invWrap").innerHTML = html;
+}
+
+function calc() {
+  let wantCoupons = parseInt(document.getElementById("numCoupons").value) || 1;
+  let currentPts = parseInt(document.getElementById("points").value) || 0;
+  // Figure out points needed for N coupons
+  let ptsNeeded = 0, coupons = 0, n = 0;
+  while (coupons < wantCoupons) {
+    let pts = couponFormula(n);
+    if (currentPts < pts) {
+      ptsNeeded += pts - currentPts;
+      ++coupons;
+      currentPts = 0;
+    } else {
+      currentPts -= pts;
+      ++coupons;
+    }
+    ++n;
+  }
+  // Read inventory (optional)
+  let inv = {};
+  for (let [item] of sortedItems) {
+    let val = document.getElementById("inv_" + item.replace(/[^a-zA-Z0-9]/g,'_'));
+    if (val && val.value) inv[item] = parseInt(val.value) || 0;
+  }
+  // For each item, calc: how many would be needed, and how many do you have
+  let rec = sortedItems.map(([item, pts])=>{
+    let needed = Math.ceil(ptsNeeded/pts);
+    let have = inv[item] || 0;
+    let canMake = have > 0 ? Math.min(needed, have) : needed;
+    return {item, pts, needed, have, canMake};
+  }).sort((a,b)=>(a.needed-b.needed) || (b.pts-a.pts));
+  // Display top 10
+  let out = `<b>To get ${wantCoupons} coupon${wantCoupons>1?'s':''}, you need ≈${ptsNeeded.toLocaleString()} points:</b><ol>`;
+  for (let r of rec.slice(0,10)) {
+    out += `<li><b>${r.item}</b>: need <b>${r.needed}</b> (${r.pts} pts each)`;
+    if (r.have) out += ` | you have: ${r.have}`;
+    out += `</li>`;
+  }
+  out += `</ol><div class="small">Tip: Results auto-update as the wiki updates!</div>`;
+  document.getElementById("output").innerHTML = out;
+}
+  </script>
+</body>
+</html>
