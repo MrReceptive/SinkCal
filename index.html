@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Satisfactory AWESOME Sink Coupon Optimizer (Refactored)</title>
+  <title>Satisfactory AWESOME Sink Coupon Optimizer</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
     body { 
@@ -22,6 +22,21 @@
       background: #2c3036;
       color: #f6f6f7;
       border-radius: 4px;
+    }
+    
+    input[type="checkbox"] {
+      margin: 0 8px 0 0;
+      padding: 0;
+      width: auto;
+      height: auto;
+      accent-color: #5865f2;
+    }
+    
+    label:has(input[type="checkbox"]) {
+      display: flex;
+      align-items: center;
+      font-weight: 600;
+      cursor: pointer;
     }
     
     input:focus, select:focus, textarea:focus {
@@ -203,6 +218,7 @@
 </head>
 <body>
   <h1>AWESOME Sink Coupon Optimizer 
+    <span class="small">(Enhanced with Accurate Math)</span>
   </h1>
   
   <div class="controls">
@@ -229,6 +245,33 @@
       <label for="points">Points needed for next coupon:</label>
       <input id="points" type="number" value="500" min="0" placeholder="500">
       <div class="small">Enter the cost of your next coupon (500 for first coupon, 1250 for 4th-6th, etc.)</div>
+    </div>
+    
+    <div class="control-group">
+      <label for="sinkingRate">Current sinking rate (optional):</label>
+      <input id="sinkingRate" type="number" value="" min="0" placeholder="e.g. 1200">
+      <div class="small">Points per minute currently being sunk (for time estimates)</div>
+    </div>
+    
+    <div class="control-group">
+      <label for="factoryEfficiency">Factory efficiency:</label>
+      <select id="factoryEfficiency">
+        <option value="0.5">Basic (50%) - Small factory</option>
+        <option value="1" selected>Good (100%) - Reasonable automation</option>
+        <option value="1.5">Excellent (150%) - Large optimized factory</option>
+        <option value="2">Mega Factory (200%) - Maximum efficiency</option>
+      </select>
+      <div class="small">Adjusts production rate estimates based on your factory setup</div>
+    </div>
+  </div>
+  
+  <div class="controls">
+    <div class="control-group">
+      <label>
+        <input type="checkbox" id="showHandCrafted"> 
+        Include hand-crafted items
+      </label>
+      <div class="small">By default, only items that can be automated are shown</div>
     </div>
   </div>
   
@@ -283,163 +326,163 @@
       ],
       
       items: {
-        "Blue FICSMAS Ornament": { points: 1, tier: 9 },
-        "FICSIT Coupon": { points: 1, tier: 9 },
-        "FICSMAS Gift": { points: 1, tier: 9 },
-        "Iron Ore": { points: 1, tier: 9 },
-        "FICSMAS Tree Branch": { points: 2, tier: 9 },
-        "Red FICSMAS Ornament": { points: 2, tier: 9 },
-        "Iron Ingot": { points: 2, tier: 1 },
-        "Limestone": { points: 2, tier: 1 },
-        "Screws": { points: 2, tier: 1 },
-        "Coal": { points: 3, tier: 2 },
-        "Copper Ore": { points: 3, tier: 2 },
-        "Leaves": { points: 3, tier: 2 },
-        "FICSMAS Bow": { points: 4, tier: 9 },
-        "Iron Rod": { points: 4, tier: 1 },
-        "FICSMAS Actual Snow": { points: 5, tier: 9 },
-        "Candy Cane": { points: 6, tier: 1 },
-        "Copper Ingot": { points: 6, tier: 1 },
-        "Iron Plate": { points: 6, tier: 1 },
-        "Wire": { points: 6, tier: 1 },
-        "Caterium Ore": { points: 7, tier: 3 },
-        "Bauxite": { points: 8, tier: 4 },
-        "Iron Rebar": { points: 8, tier: 4 },
-        "Steel Ingot": { points: 8, tier: 4 },
-        "Mycelia": { points: 10, tier: 2 },
-        "Sulfur": { points: 11, tier: 3 },
-        "Biomass": { points: 12, tier: 1 },
-        "Concrete": { points: 12, tier: 1 },
-        "Polymer Resin": { points: 12, tier: 1 },
-        "Black Powder": { points: 14, tier: 3 },
-        "Raw Quartz": { points: 15, tier: 3 },
-        "Quickwire": { points: 17, tier: 3 },
-        "Iron FICSMAS Ornament": { points: 18, tier: 9 },
-        "Petroleum Coke": { points: 20, tier: 4 },
-        "SAM": { points: 20, tier: 4 },
-        "Silica": { points: 20, tier: 4 },
-        "Cable": { points: 24, tier: 2 },
-        "Copper Sheet": { points: 24, tier: 2 },
-        "Steel Pipe": { points: 24, tier: 2 },
-        "Rifle Ammo": { points: 25, tier: 6 },
-        "Aluminum Scrap": { points: 27, tier: 7 },
-        "Compacted Coal": { points: 28, tier: 5 },
-        "Snowball": { points: 30, tier: 1 },
-        "Wood": { points: 30, tier: 1 },
-        "Copper FICSMAS Ornament": { points: 32, tier: 9 },
-        "Sparkly Fireworks": { points: 32, tier: 9 },
-        "Uranium": { points: 35, tier: 7 },
-        "Fancy Fireworks": { points: 40, tier: 9 },
-        "Caterium Ingot": { points: 42, tier: 3 },
-        "Solid Biofuel": { points: 48, tier: 2 },
-        "Quartz Crystal": { points: 50, tier: 3 },
-        "Portable Miner": { points: 56, tier: 1 },
-        "Smokeless Powder": { points: 58, tier: 4 },
-        "Empty Canister": { points: 60, tier: 3 },
-        "Rubber": { points: 60, tier: 3 },
-        "Sweet Fireworks": { points: 60, tier: 3 },
-        "Steel Beam": { points: 64, tier: 4 },
-        "Copper Powder": { points: 72, tier: 5 },
-        "Plastic": { points: 75, tier: 5 },
-        "'Employee of the Planet' Cup": { points: 84, tier: 9 },
-        "Cup": { points: 84, tier: 9 },
-        "FICSMAS Ornament Bundle": { points: 100, tier: 9 },
-        "Reinforced Iron Plate": { points: 120, tier: 2 },
-        "Turbo Rifle Ammo": { points: 120, tier: 2 },
-        "Medicinal Inhaler": { points: 125, tier: 4 },
-        "Packaged Water": { points: 130, tier: 4 },
-        "Aluminum Ingot": { points: 131, tier: 7 },
-        "Fabric": { points: 140, tier: 3 },
-        "Rotor": { points: 140, tier: 3 },
-        "Encased Uranium Cell": { points: 147, tier: 7 },
-        "Nobelisk": { points: 152, tier: 5 },
-        "Packaged Sulfuric Acid": { points: 152, tier: 5 },
-        "Packaged Alumina Solution": { points: 160, tier: 7 },
-        "Reanimated SAM": { points: 160, tier: 7 },
-        "Empty Fluid Tank": { points: 170, tier: 5 },
-        "Packaged Heavy Oil Residue": { points: 180, tier: 5 },
-        "Packaged Oil": { points: 180, tier: 5 },
-        "Stun Rebar": { points: 186, tier: 4 },
-        "Alien Power Matrix": { points: 210, tier: 8 },
-        "Diamonds": { points: 240, tier: 5 },
-        "Stator": { points: 240, tier: 5 },
-        "Alclad Aluminum Sheet": { points: 266, tier: 7 },
-        "Packaged Fuel": { points: 270, tier: 5 },
-        "Packaged Nitrogen Gas": { points: 312, tier: 8 },
-        "Shatter Rebar": { points: 332, tier: 5 },
-        "Explosive Rebar": { points: 360, tier: 5 },
-        "Packaged Liquid Biofuel": { points: 370, tier: 6 },
-        "Aluminum Casing": { points: 393, tier: 7 },
-        "Modular Frame": { points: 408, tier: 4 },
-        "Packaged Nitric Acid": { points: 412, tier: 8 },
-        "Battery": { points: 465, tier: 6 },
-        "Smart Plating": { points: 520, tier: 4 },
-        "Encased Industrial Beam": { points: 528, tier: 5 },
-        "Gas Nobelisk": { points: 544, tier: 6 },
-        "Packaged Turbofuel": { points: 570, tier: 6 },
-        "Gas Filter": { points: 608, tier: 6 },
-        "FICSMAS Wreath": { points: 630, tier: 9 },
-        "Circuit Board": { points: 696, tier: 5 },
-        "Homing Rifle Ammo": { points: 855, tier: 6 },
-        "AI Limiter": { points: 920, tier: 5 },
-        "Time Crystal": { points: 960, tier: 8 },
-        "Packaged Rocket Fuel": { points: 1028, tier: 7 },
-        "Versatile Framework": { points: 1176, tier: 6 },
-        "Ficsite Trigon": { points: 1291, tier: 8 },
-        "Cluster Nobelisk": { points: 1376, tier: 8 },
-        "Object Scanner": { points: 1400, tier: 2 },
-        "Automated Wiring": { points: 1440, tier: 5 },
-        "Motor": { points: 1520, tier: 4 },
-        "Pulse Nobelisk": { points: 1533, tier: 7 },
-        "Factory Cart™": { points: 1552, tier: 3 },
-        "Dark Matter Crystal": { points: 1780, tier: 8 },
-        "Golden Factory Cart™": { points: 1852, tier: 9 },
-        "Xeno-Zapper": { points: 1880, tier: 1 },
-        "Ficsite Ingot": { points: 1936, tier: 8 },
-        "Rebar Gun": { points: 1968, tier: 5 },
-        "SAM Fluctuator": { points: 1968, tier: 5 },
-        "Iodine-Infused Filter": { points: 2274, tier: 6 },
-        "Electromagnetic Control Rod": { points: 2560, tier: 7 },
-        "Chainsaw": { points: 2760, tier: 1 },
-        "Heat Sink": { points: 2804, tier: 6 },
-        "Crystal Oscillator": { points: 3072, tier: 6 },
-        "High-Speed Connector": { points: 3776, tier: 6 },
-        "Blade Runners": { points: 4088, tier: 3 },
-        "Packaged Ionized Fuel": { points: 5246, tier: 8 },
-        "Zipline": { points: 5284, tier: 4 },
-        "Parachute": { points: 6080, tier: 4 },
-        "Nobelisk Detonator": { points: 6480, tier: 5 },
-        "FICSMAS Wonder Star": { points: 6540, tier: 9 },
-        "Candy Cane Basher": { points: 7850, tier: 9 },
-        "Computer": { points: 8352, tier: 6 },
-        "Rifle": { points: 9480, tier: 6 },
-        "Modular Engine": { points: 9960, tier: 6 },
-        "Heavy Modular Frame": { points: 10800, tier: 6 },
-        "Magnetic Field Generator": { points: 11000, tier: 8 },
-        "Cooling System": { points: 12006, tier: 7 },
-        "Gas Mask": { points: 14960, tier: 6 },
-        "Jetpack": { points: 16580, tier: 6 },
-        "Xeno-Basher": { points: 17800, tier: 4 },
-        "Nuke Nobelisk": { points: 19600, tier: 8 },
-        "Radio Control Unit": { points: 32352, tier: 7 },
-        "Superposition Oscillator": { points: 37292, tier: 8 },
-        "Uranium Fuel Rod": { points: 43468, tier: 7 },
-        "Hazmat Suit": { points: 54100, tier: 7 },
-        "Fused Modular Frame": { points: 62840, tier: 7 },
-        "Adaptive Control Unit": { points: 76368, tier: 7 },
-        "Supercomputer": { points: 97352, tier: 7 },
-        "Singularity Cell": { points: 114675, tier: 8 },
-        "Plutonium Fuel Rod": { points: 153184, tier: 8 },
-        "Turbo Motor": { points: 240496, tier: 7 },
-        "Neural-Quantum Processor": { points: 248034, tier: 8 },
-        "Pressure Conversion Cube": { points: 255088, tier: 8 },
-        "Hoverpack": { points: 265632, tier: 8 },
-        "Biochemical Sculptor": { points: 301778, tier: 8 },
-        "Assembly Director System": { points: 500176, tier: 8 },
-        "Nuclear Pasta": { points: 538976, tier: 8 },
-        "AI Expansion Server": { points: 597652, tier: 8 },
-        "Thermal Propulsion Rocket": { points: 728508, tier: 8 },
-        "Ballistic Warp Drive": { points: 2895334, tier: 8 }
+        "Blue FICSMAS Ornament": { points: 1, tier: 9, automatable: false, productionRate: 0, complexity: 1 },
+        "FICSIT Coupon": { points: 1, tier: 9, automatable: false, productionRate: 0, complexity: 1 },
+        "FICSMAS Gift": { points: 1, tier: 9, automatable: false, productionRate: 0, complexity: 1 },
+        "Iron Ore": { points: 1, tier: 9, automatable: true, productionRate: 2000, complexity: 1 },
+        "FICSMAS Tree Branch": { points: 2, tier: 9, automatable: false, productionRate: 0, complexity: 1 },
+        "Red FICSMAS Ornament": { points: 2, tier: 9, automatable: false, productionRate: 0, complexity: 1 },
+        "Iron Ingot": { points: 2, tier: 1, automatable: true, productionRate: 1000, complexity: 1 },
+        "Limestone": { points: 2, tier: 1, automatable: true, productionRate: 2000, complexity: 1 },
+        "Screws": { points: 2, tier: 1, automatable: true, productionRate: 800, complexity: 1 },
+        "Coal": { points: 3, tier: 2, automatable: true, productionRate: 1500, complexity: 1 },
+        "Copper Ore": { points: 3, tier: 2, automatable: true, productionRate: 1800, complexity: 1 },
+        "Leaves": { points: 3, tier: 2, automatable: true, productionRate: 500, complexity: 1 },
+        "FICSMAS Bow": { points: 4, tier: 9, automatable: false, productionRate: 0, complexity: 2 },
+        "Iron Rod": { points: 4, tier: 1, automatable: true, productionRate: 600, complexity: 1 },
+        "FICSMAS Actual Snow": { points: 5, tier: 9, automatable: false, productionRate: 0, complexity: 1 },
+        "Candy Cane": { points: 6, tier: 1, automatable: false, productionRate: 0, complexity: 2 },
+        "Copper Ingot": { points: 6, tier: 1, automatable: true, productionRate: 900, complexity: 1 },
+        "Iron Plate": { points: 6, tier: 1, automatable: true, productionRate: 400, complexity: 1 },
+        "Wire": { points: 6, tier: 1, automatable: true, productionRate: 1200, complexity: 1 },
+        "Caterium Ore": { points: 7, tier: 3, automatable: true, productionRate: 800, complexity: 1 },
+        "Bauxite": { points: 8, tier: 4, automatable: true, productionRate: 600, complexity: 1 },
+        "Iron Rebar": { points: 8, tier: 4, automatable: true, productionRate: 300, complexity: 2 },
+        "Steel Ingot": { points: 8, tier: 4, automatable: true, productionRate: 500, complexity: 2 },
+        "Mycelia": { points: 10, tier: 2, automatable: true, productionRate: 300, complexity: 1 },
+        "Sulfur": { points: 11, tier: 3, automatable: true, productionRate: 800, complexity: 1 },
+        "Biomass": { points: 12, tier: 1, automatable: false, productionRate: 0, complexity: 1 },
+        "Concrete": { points: 12, tier: 1, automatable: true, productionRate: 400, complexity: 1 },
+        "Polymer Resin": { points: 12, tier: 1, automatable: true, productionRate: 200, complexity: 2 },
+        "Black Powder": { points: 14, tier: 3, automatable: true, productionRate: 150, complexity: 2 },
+        "Raw Quartz": { points: 15, tier: 3, automatable: true, productionRate: 600, complexity: 1 },
+        "Quickwire": { points: 17, tier: 3, automatable: true, productionRate: 800, complexity: 2 },
+        "Iron FICSMAS Ornament": { points: 18, tier: 9, automatable: false, productionRate: 0, complexity: 2 },
+        "Petroleum Coke": { points: 20, tier: 4, automatable: true, productionRate: 300, complexity: 2 },
+        "SAM": { points: 20, tier: 4, automatable: true, productionRate: 200, complexity: 1 },
+        "Silica": { points: 20, tier: 4, automatable: true, productionRate: 300, complexity: 2 },
+        "Cable": { points: 24, tier: 2, automatable: true, productionRate: 300, complexity: 2 },
+        "Copper Sheet": { points: 24, tier: 2, automatable: true, productionRate: 200, complexity: 2 },
+        "Steel Pipe": { points: 24, tier: 2, automatable: true, productionRate: 200, complexity: 2 },
+        "Rifle Ammo": { points: 25, tier: 6, automatable: true, productionRate: 180, complexity: 3 },
+        "Aluminum Scrap": { points: 27, tier: 7, automatable: true, productionRate: 400, complexity: 3 },
+        "Compacted Coal": { points: 28, tier: 5, automatable: true, productionRate: 100, complexity: 3 },
+        "Snowball": { points: 30, tier: 1, automatable: false, productionRate: 0, complexity: 1 },
+        "Wood": { points: 30, tier: 1, automatable: true, productionRate: 200, complexity: 1 },
+        "Copper FICSMAS Ornament": { points: 32, tier: 9, automatable: false, productionRate: 0, complexity: 2 },
+        "Sparkly Fireworks": { points: 32, tier: 9, automatable: false, productionRate: 0, complexity: 3 },
+        "Uranium": { points: 35, tier: 7, automatable: true, productionRate: 100, complexity: 2 },
+        "Fancy Fireworks": { points: 40, tier: 9, automatable: false, productionRate: 0, complexity: 4 },
+        "Caterium Ingot": { points: 42, tier: 3, automatable: true, productionRate: 400, complexity: 2 },
+        "Solid Biofuel": { points: 48, tier: 2, automatable: true, productionRate: 150, complexity: 2 },
+        "Quartz Crystal": { points: 50, tier: 3, automatable: true, productionRate: 200, complexity: 2 },
+        "Portable Miner": { points: 56, tier: 1, automatable: false, productionRate: 0, complexity: 3 },
+        "Smokeless Powder": { points: 58, tier: 4, automatable: true, productionRate: 80, complexity: 3 },
+        "Empty Canister": { points: 60, tier: 3, automatable: true, productionRate: 120, complexity: 2 },
+        "Rubber": { points: 60, tier: 3, automatable: true, productionRate: 120, complexity: 3 },
+        "Sweet Fireworks": { points: 60, tier: 3, automatable: false, productionRate: 0, complexity: 4 },
+        "Steel Beam": { points: 64, tier: 4, automatable: true, productionRate: 200, complexity: 2 },
+        "Copper Powder": { points: 72, tier: 5, automatable: true, productionRate: 150, complexity: 3 },
+        "Plastic": { points: 75, tier: 5, automatable: true, productionRate: 200, complexity: 3 },
+        "'Employee of the Planet' Cup": { points: 84, tier: 9, automatable: false, productionRate: 0, complexity: 4 },
+        "Cup": { points: 84, tier: 9, automatable: false, productionRate: 0, complexity: 4 },
+        "FICSMAS Ornament Bundle": { points: 100, tier: 9, automatable: false, productionRate: 0, complexity: 4 },
+        "Reinforced Iron Plate": { points: 120, tier: 2, automatable: true, productionRate: 150, complexity: 2 },
+        "Turbo Rifle Ammo": { points: 120, tier: 2, automatable: true, productionRate: 100, complexity: 3 },
+        "Medicinal Inhaler": { points: 125, tier: 4, automatable: false, productionRate: 0, complexity: 4 },
+        "Packaged Water": { points: 130, tier: 4, automatable: true, productionRate: 300, complexity: 2 },
+        "Aluminum Ingot": { points: 131, tier: 7, automatable: true, productionRate: 300, complexity: 3 },
+        "Fabric": { points: 140, tier: 3, automatable: true, productionRate: 80, complexity: 3 },
+        "Rotor": { points: 140, tier: 3, automatable: true, productionRate: 100, complexity: 3 },
+        "Encased Uranium Cell": { points: 147, tier: 7, automatable: true, productionRate: 50, complexity: 4 },
+        "Nobelisk": { points: 152, tier: 5, automatable: true, productionRate: 60, complexity: 3 },
+        "Packaged Sulfuric Acid": { points: 152, tier: 5, automatable: true, productionRate: 100, complexity: 3 },
+        "Packaged Alumina Solution": { points: 160, tier: 7, automatable: true, productionRate: 200, complexity: 3 },
+        "Reanimated SAM": { points: 160, tier: 7, automatable: true, productionRate: 60, complexity: 4 },
+        "Empty Fluid Tank": { points: 170, tier: 5, automatable: true, productionRate: 80, complexity: 3 },
+        "Packaged Heavy Oil Residue": { points: 180, tier: 5, automatable: true, productionRate: 150, complexity: 3 },
+        "Packaged Oil": { points: 180, tier: 5, automatable: true, productionRate: 200, complexity: 2 },
+        "Stun Rebar": { points: 186, tier: 4, automatable: true, productionRate: 50, complexity: 3 },
+        "Alien Power Matrix": { points: 210, tier: 8, automatable: true, productionRate: 30, complexity: 5 },
+        "Diamonds": { points: 240, tier: 5, automatable: true, productionRate: 80, complexity: 4 },
+        "Stator": { points: 240, tier: 5, automatable: true, productionRate: 80, complexity: 3 },
+        "Alclad Aluminum Sheet": { points: 266, tier: 7, automatable: true, productionRate: 120, complexity: 3 },
+        "Packaged Fuel": { points: 270, tier: 5, automatable: true, productionRate: 150, complexity: 3 },
+        "Packaged Nitrogen Gas": { points: 312, tier: 8, automatable: true, productionRate: 100, complexity: 4 },
+        "Shatter Rebar": { points: 332, tier: 5, automatable: true, productionRate: 40, complexity: 4 },
+        "Explosive Rebar": { points: 360, tier: 5, automatable: true, productionRate: 35, complexity: 4 },
+        "Packaged Liquid Biofuel": { points: 370, tier: 6, automatable: true, productionRate: 80, complexity: 4 },
+        "Aluminum Casing": { points: 393, tier: 7, automatable: true, productionRate: 100, complexity: 3 },
+        "Modular Frame": { points: 408, tier: 4, automatable: true, productionRate: 60, complexity: 3 },
+        "Packaged Nitric Acid": { points: 412, tier: 8, automatable: true, productionRate: 60, complexity: 4 },
+        "Battery": { points: 465, tier: 6, automatable: true, productionRate: 50, complexity: 4 },
+        "Smart Plating": { points: 520, tier: 4, automatable: true, productionRate: 40, complexity: 3 },
+        "Encased Industrial Beam": { points: 528, tier: 5, automatable: true, productionRate: 60, complexity: 3 },
+        "Gas Nobelisk": { points: 544, tier: 6, automatable: true, productionRate: 30, complexity: 4 },
+        "Packaged Turbofuel": { points: 570, tier: 6, automatable: true, productionRate: 80, complexity: 4 },
+        "Gas Filter": { points: 608, tier: 6, automatable: true, productionRate: 40, complexity: 4 },
+        "FICSMAS Wreath": { points: 630, tier: 9, automatable: false, productionRate: 0, complexity: 5 },
+        "Circuit Board": { points: 696, tier: 5, automatable: true, productionRate: 80, complexity: 4 },
+        "Homing Rifle Ammo": { points: 855, tier: 6, automatable: true, productionRate: 25, complexity: 4 },
+        "AI Limiter": { points: 920, tier: 5, automatable: true, productionRate: 50, complexity: 4 },
+        "Time Crystal": { points: 960, tier: 8, automatable: true, productionRate: 20, complexity: 5 },
+        "Packaged Rocket Fuel": { points: 1028, tier: 7, automatable: true, productionRate: 40, complexity: 4 },
+        "Versatile Framework": { points: 1176, tier: 6, automatable: true, productionRate: 30, complexity: 4 },
+        "Ficsite Trigon": { points: 1291, tier: 8, automatable: true, productionRate: 25, complexity: 5 },
+        "Cluster Nobelisk": { points: 1376, tier: 8, automatable: true, productionRate: 15, complexity: 5 },
+        "Object Scanner": { points: 1400, tier: 2, automatable: false, productionRate: 0, complexity: 4 },
+        "Automated Wiring": { points: 1440, tier: 5, automatable: true, productionRate: 40, complexity: 4 },
+        "Motor": { points: 1520, tier: 4, automatable: true, productionRate: 50, complexity: 4 },
+        "Pulse Nobelisk": { points: 1533, tier: 7, automatable: true, productionRate: 12, complexity: 5 },
+        "Factory Cart™": { points: 1552, tier: 3, automatable: false, productionRate: 0, complexity: 4 },
+        "Dark Matter Crystal": { points: 1780, tier: 8, automatable: true, productionRate: 15, complexity: 5 },
+        "Golden Factory Cart™": { points: 1852, tier: 9, automatable: false, productionRate: 0, complexity: 5 },
+        "Xeno-Zapper": { points: 1880, tier: 1, automatable: false, productionRate: 0, complexity: 4 },
+        "Ficsite Ingot": { points: 1936, tier: 8, automatable: true, productionRate: 30, complexity: 5 },
+        "Rebar Gun": { points: 1968, tier: 5, automatable: false, productionRate: 0, complexity: 4 },
+        "SAM Fluctuator": { points: 1968, tier: 5, automatable: false, productionRate: 0, complexity: 4 },
+        "Iodine-Infused Filter": { points: 2274, tier: 6, automatable: true, productionRate: 20, complexity: 5 },
+        "Electromagnetic Control Rod": { points: 2560, tier: 7, automatable: true, productionRate: 15, complexity: 5 },
+        "Chainsaw": { points: 2760, tier: 1, automatable: false, productionRate: 0, complexity: 4 },
+        "Heat Sink": { points: 2804, tier: 6, automatable: true, productionRate: 25, complexity: 4 },
+        "Crystal Oscillator": { points: 3072, tier: 6, automatable: true, productionRate: 20, complexity: 5 },
+        "High-Speed Connector": { points: 3776, tier: 6, automatable: true, productionRate: 15, complexity: 5 },
+        "Blade Runners": { points: 4088, tier: 3, automatable: false, productionRate: 0, complexity: 4 },
+        "Packaged Ionized Fuel": { points: 5246, tier: 8, automatable: true, productionRate: 12, complexity: 5 },
+        "Zipline": { points: 5284, tier: 4, automatable: false, productionRate: 0, complexity: 4 },
+        "Parachute": { points: 6080, tier: 4, automatable: false, productionRate: 0, complexity: 4 },
+        "Nobelisk Detonator": { points: 6480, tier: 5, automatable: false, productionRate: 0, complexity: 4 },
+        "FICSMAS Wonder Star": { points: 6540, tier: 9, automatable: false, productionRate: 0, complexity: 5 },
+        "Candy Cane Basher": { points: 7850, tier: 9, automatable: false, productionRate: 0, complexity: 5 },
+        "Computer": { points: 8352, tier: 6, automatable: true, productionRate: 15, complexity: 4 },
+        "Rifle": { points: 9480, tier: 6, automatable: false, productionRate: 0, complexity: 4 },
+        "Modular Engine": { points: 9960, tier: 6, automatable: true, productionRate: 12, complexity: 5 },
+        "Heavy Modular Frame": { points: 10800, tier: 6, automatable: true, productionRate: 8, complexity: 5 },
+        "Magnetic Field Generator": { points: 11000, tier: 8, automatable: true, productionRate: 6, complexity: 5 },
+        "Cooling System": { points: 12006, tier: 7, automatable: true, productionRate: 10, complexity: 5 },
+        "Gas Mask": { points: 14960, tier: 6, automatable: false, productionRate: 0, complexity: 5 },
+        "Jetpack": { points: 16580, tier: 6, automatable: false, productionRate: 0, complexity: 5 },
+        "Xeno-Basher": { points: 17800, tier: 4, automatable: false, productionRate: 0, complexity: 5 },
+        "Nuke Nobelisk": { points: 19600, tier: 8, automatable: true, productionRate: 5, complexity: 5 },
+        "Radio Control Unit": { points: 32352, tier: 7, automatable: true, productionRate: 4, complexity: 5 },
+        "Superposition Oscillator": { points: 37292, tier: 8, automatable: true, productionRate: 3, complexity: 5 },
+        "Uranium Fuel Rod": { points: 43468, tier: 7, automatable: true, productionRate: 2, complexity: 5 },
+        "Hazmat Suit": { points: 54100, tier: 7, automatable: false, productionRate: 0, complexity: 5 },
+        "Fused Modular Frame": { points: 62840, tier: 7, automatable: true, productionRate: 3, complexity: 5 },
+        "Adaptive Control Unit": { points: 76368, tier: 7, automatable: true, productionRate: 2, complexity: 5 },
+        "Supercomputer": { points: 97352, tier: 7, automatable: true, productionRate: 2, complexity: 5 },
+        "Singularity Cell": { points: 114675, tier: 8, automatable: true, productionRate: 1, complexity: 5 },
+        "Plutonium Fuel Rod": { points: 153184, tier: 8, automatable: true, productionRate: 1, complexity: 5 },
+        "Turbo Motor": { points: 240496, tier: 7, automatable: true, productionRate: 2, complexity: 5 },
+        "Neural-Quantum Processor": { points: 248034, tier: 8, automatable: true, productionRate: 1, complexity: 5 },
+        "Pressure Conversion Cube": { points: 255088, tier: 8, automatable: true, productionRate: 1, complexity: 5 },
+        "Hoverpack": { points: 265632, tier: 8, automatable: false, productionRate: 0, complexity: 5 },
+        "Biochemical Sculptor": { points: 301778, tier: 8, automatable: true, productionRate: 1, complexity: 5 },
+        "Assembly Director System": { points: 500176, tier: 8, automatable: true, productionRate: 1, complexity: 5 },
+        "Nuclear Pasta": { points: 538976, tier: 8, automatable: true, productionRate: 1, complexity: 5 },
+        "AI Expansion Server": { points: 597652, tier: 8, automatable: true, productionRate: 1, complexity: 5 },
+        "Thermal Propulsion Rocket": { points: 728508, tier: 8, automatable: true, productionRate: 1, complexity: 5 },
+        "Ballistic Warp Drive": { points: 2895334, tier: 8, automatable: true, productionRate: 0.5, complexity: 5 }
       }
     };
 
@@ -654,10 +697,13 @@
        * @param {number} selectedTier - Selected tier
        * @param {Object} customUnlocked - Custom unlocked items
        * @param {Object} inventory - Current inventory
+       * @param {boolean} includeHandCrafted - Whether to include hand-crafted items
+       * @param {number} sinkingRate - Current sinking rate (for realistic time calculation)
+       * @param {number} factoryEfficiency - Factory efficiency multiplier
        * @returns {Array} Array of recommendations
        */
-      static generateRecommendations(pointsNeeded, selectedTier, customUnlocked, inventory) {
-        const availableItems = this.getAvailableItems(selectedTier, customUnlocked);
+      static generateRecommendations(pointsNeeded, selectedTier, customUnlocked, inventory, includeHandCrafted = false, sinkingRate = null, factoryEfficiency = 1.0) {
+        const availableItems = this.getAvailableItems(selectedTier, customUnlocked, includeHandCrafted);
         
         return availableItems
           .map(([itemName, itemData]) => {
@@ -665,6 +711,12 @@
             const have = inventory[itemName] || 0;
             const canMake = have > 0 ? Math.min(needed, have) : needed;
             
+            // Calculate realistic time if sinking rate is available
+            let realisticTime = null;
+            if (sinkingRate) {
+              realisticTime = this.calculateRealisticTimeEstimate(needed, itemData, sinkingRate, factoryEfficiency);
+            }
+
             return {
               item: itemName,
               points: itemData.points,
@@ -672,11 +724,21 @@
               have,
               canMake,
               efficiency: itemData.points, // Points per item
-              isEvent: itemName.toLowerCase().includes('ficsmas')
+              isEvent: itemName.toLowerCase().includes('ficsmas'),
+              isAutomatable: itemData.automatable,
+              productionRate: itemData.productionRate,
+              complexity: itemData.complexity,
+              realisticTime: realisticTime,
+              totalTimeMinutes: realisticTime ? realisticTime.totalMinutes : needed // Fallback for sorting
             };
           })
           .sort((a, b) => {
-            // Sort by items needed (ascending), then by points per item (descending)
+            // Sort by realistic total time (ascending), then by points per item (descending)
+            if (sinkingRate && a.realisticTime && b.realisticTime) {
+              const timeDiff = a.realisticTime.totalMinutes - b.realisticTime.totalMinutes;
+              return timeDiff !== 0 ? timeDiff : b.points - a.points;
+            }
+            // Fallback to original sorting if no sinking rate
             const needDiff = a.needed - b.needed;
             return needDiff !== 0 ? needDiff : b.points - a.points;
           })
@@ -684,18 +746,209 @@
       }
 
       /**
-       * Get available items based on tier and custom unlocks
+       * Calculate time estimates based on current sinking rate
+       * @param {number} pointsNeeded - Total points needed
+       * @param {number} sinkingRatePerMinute - Current sinking rate per minute
+       * @returns {Object} Time estimates in various units
+       */
+      static calculateTimeEstimate(pointsNeeded, sinkingRatePerMinute) {
+        if (!sinkingRatePerMinute || sinkingRatePerMinute <= 0) {
+          return null;
+        }
+
+        const totalMinutes = pointsNeeded / sinkingRatePerMinute;
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = Math.floor(totalMinutes % 60);
+        const days = Math.floor(totalMinutes / (60 * 24));
+        const remainingHours = Math.floor((totalMinutes % (60 * 24)) / 60);
+
+        return {
+          totalMinutes: Math.round(totalMinutes),
+          hours,
+          minutes,
+          days,
+          remainingHours,
+          formattedShort: this.formatTimeShort(totalMinutes),
+          formattedLong: this.formatTimeLong(totalMinutes)
+        };
+      }
+
+      /**
+       * Calculate realistic total time including production complexity
+       * @param {number} itemsNeeded - Number of items needed
+       * @param {Object} itemData - Item data including production rate and complexity
+       * @param {number} sinkingRatePerMinute - Current sinking rate per minute
+       * @param {number} factoryEfficiency - Factory efficiency multiplier (default: 1.0)
+       * @returns {Object} Comprehensive time breakdown
+       */
+      static calculateRealisticTimeEstimate(itemsNeeded, itemData, sinkingRatePerMinute, factoryEfficiency = 1.0) {
+        if (!sinkingRatePerMinute || sinkingRatePerMinute <= 0) {
+          return null;
+        }
+
+        const totalPoints = itemsNeeded * itemData.points;
+        
+        // Calculate sinking time (how long to sink all the items)
+        const sinkingTimeMinutes = totalPoints / sinkingRatePerMinute;
+
+        // Calculate production time (how long to make all the items)
+        let productionTimeMinutes = 0;
+        if (itemData.automatable && itemData.productionRate > 0) {
+          // Apply factory efficiency to production rate
+          const effectiveProductionRate = itemData.productionRate * factoryEfficiency;
+          productionTimeMinutes = itemsNeeded / effectiveProductionRate;
+        } else {
+          // Hand-crafted items - assume much slower manual production
+          productionTimeMinutes = itemsNeeded * 0.5; // 30 seconds per item manually
+        }
+
+        // Add complexity penalty (setup/infrastructure time)
+        // Reduce complexity penalty with higher factory efficiency
+        const complexityPenalty = this.calculateComplexityPenalty(itemData.complexity, itemsNeeded) / Math.sqrt(factoryEfficiency);
+
+        // Total time is the longer of production vs sinking, plus setup penalty
+        const totalMinutes = Math.max(productionTimeMinutes, sinkingTimeMinutes) + complexityPenalty;
+
+        return {
+          totalMinutes: Math.round(totalMinutes),
+          productionMinutes: Math.round(productionTimeMinutes),
+          sinkingMinutes: Math.round(sinkingTimeMinutes),
+          complexityPenalty: Math.round(complexityPenalty),
+          formattedShort: this.formatTimeShort(totalMinutes),
+          formattedLong: this.formatTimeLong(totalMinutes),
+          breakdown: this.formatTimeBreakdown(productionTimeMinutes, sinkingTimeMinutes, complexityPenalty)
+        };
+      }
+
+      /**
+       * Calculate complexity penalty based on setup difficulty
+       * @param {number} complexity - Complexity level (1-5)
+       * @param {number} itemsNeeded - Number of items needed
+       * @returns {number} Penalty in minutes
+       */
+      static calculateComplexityPenalty(complexity, itemsNeeded) {
+        // Base penalty by complexity level
+        const basePenalties = {
+          1: 0,    // Raw materials - no setup needed
+          2: 2,    // Simple manufacturing - 2 min setup
+          3: 10,   // Intermediate - 10 min setup
+          4: 30,   // Complex - 30 min setup
+          5: 120   // Endgame - 2 hour setup
+        };
+
+        const basePenalty = basePenalties[complexity] || 0;
+        
+        // Scale penalty for large quantities (more infrastructure needed)
+        const scaleFactor = Math.min(Math.log10(itemsNeeded + 1), 2); // Cap at 2x
+        
+        return basePenalty * (1 + scaleFactor);
+      }
+
+      /**
+       * Format time breakdown for display
+       * @param {number} productionMinutes - Production time
+       * @param {number} sinkingMinutes - Sinking time  
+       * @param {number} complexityPenalty - Setup penalty
+       * @returns {string} Formatted breakdown
+       */
+      static formatTimeBreakdown(productionMinutes, sinkingMinutes, complexityPenalty) {
+        const parts = [];
+        
+        if (productionMinutes > 1) {
+          parts.push(`${this.formatTimeShort(productionMinutes)} to produce`);
+        }
+        
+        if (sinkingMinutes > 1) {
+          parts.push(`${this.formatTimeShort(sinkingMinutes)} to sink`);
+        }
+        
+        if (complexityPenalty > 1) {
+          parts.push(`${this.formatTimeShort(complexityPenalty)} setup`);
+        }
+
+        return parts.length > 0 ? `(${parts.join(' + ')})` : '';
+      }
+
+      /**
+       * Format time in short format (e.g., "2h 30m")
+       * @param {number} totalMinutes - Total minutes
+       * @returns {string} Formatted time string
+       */
+      static formatTimeShort(totalMinutes) {
+        if (totalMinutes < 1) return "< 1m";
+        if (totalMinutes < 60) return `${Math.round(totalMinutes)}m`;
+        
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = Math.round(totalMinutes % 60);
+        
+        if (hours < 24) {
+          return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+        }
+        
+        const days = Math.floor(hours / 24);
+        const remainingHours = hours % 24;
+        
+        if (days < 7) {
+          return remainingHours > 0 ? `${days}d ${remainingHours}h` : `${days}d`;
+        }
+        
+        const weeks = Math.floor(days / 7);
+        const remainingDays = days % 7;
+        
+        return remainingDays > 0 ? `${weeks}w ${remainingDays}d` : `${weeks}w`;
+      }
+
+      /**
+       * Format time in long format (e.g., "2 hours and 30 minutes")
+       * @param {number} totalMinutes - Total minutes
+       * @returns {string} Formatted time string
+       */
+      static formatTimeLong(totalMinutes) {
+        if (totalMinutes < 1) return "less than 1 minute";
+        if (totalMinutes < 60) return `${Math.round(totalMinutes)} minute${Math.round(totalMinutes) !== 1 ? 's' : ''}`;
+        
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = Math.round(totalMinutes % 60);
+        
+        if (hours < 24) {
+          let result = `${hours} hour${hours !== 1 ? 's' : ''}`;
+          if (minutes > 0) {
+            result += ` and ${minutes} minute${minutes !== 1 ? 's' : ''}`;
+          }
+          return result;
+        }
+        
+        const days = Math.floor(hours / 24);
+        const remainingHours = hours % 24;
+        
+        let result = `${days} day${days !== 1 ? 's' : ''}`;
+        if (remainingHours > 0) {
+          result += ` and ${remainingHours} hour${remainingHours !== 1 ? 's' : ''}`;
+        }
+        return result;
+      }
+
+      /**
+       * Get available items based on tier, custom unlocks, and automation preference
        * @param {number} selectedTier - Selected tier
        * @param {Object} customUnlocked - Custom unlocked items
+       * @param {boolean} includeHandCrafted - Whether to include hand-crafted items
        * @returns {Array} Array of [itemName, itemData] pairs
        */
-      static getAvailableItems(selectedTier, customUnlocked) {
+      static getAvailableItems(selectedTier, customUnlocked, includeHandCrafted = false) {
         return Object.entries(GAME_DATA.items)
           .filter(([itemName, itemData]) => {
+            // Exclude items that cannot be sunk
             if (GAME_DATA.cannotBeSunk.includes(itemName)) {
               return false;
             }
             
+            // Filter by automation preference
+            if (!includeHandCrafted && !itemData.automatable) {
+              return false;
+            }
+            
+            // Filter by unlocked items
             if (customUnlocked) {
               return customUnlocked[itemName];
             }
@@ -734,6 +987,7 @@
       attachEventListeners() {
         const tierSelect = document.getElementById('tierSelect');
         const customUnlocked = document.getElementById('customUnlocked');
+        const showHandCrafted = document.getElementById('showHandCrafted');
         
         if (tierSelect) {
           tierSelect.addEventListener('change', () => {
@@ -743,6 +997,12 @@
         
         if (customUnlocked) {
           customUnlocked.addEventListener('input', () => {
+            this.debouncedRebuildInventory();
+          });
+        }
+        
+        if (showHandCrafted) {
+          showHandCrafted.addEventListener('change', () => {
             this.debouncedRebuildInventory();
           });
         }
@@ -801,6 +1061,37 @@
       getCurrentTier() {
         const tierSelect = document.getElementById('tierSelect');
         return tierSelect ? parseInt(tierSelect.value) : 8;
+      }
+
+      /**
+       * Get whether to include hand-crafted items
+       * @returns {boolean} Whether hand-crafted items should be included
+       */
+      getIncludeHandCrafted() {
+        const checkbox = document.getElementById('showHandCrafted');
+        return checkbox ? checkbox.checked : false;
+      }
+
+      /**
+       * Get current sinking rate per minute
+       * @returns {number|null} Sinking rate per minute or null if not specified
+       */
+      getCurrentSinkingRate() {
+        const input = document.getElementById('sinkingRate');
+        if (!input || !input.value.trim()) {
+          return null;
+        }
+        const rate = parseInt(input.value);
+        return isNaN(rate) || rate <= 0 ? null : rate;
+      }
+
+      /**
+       * Get current factory efficiency multiplier
+       * @returns {number} Factory efficiency multiplier
+       */
+      getFactoryEfficiency() {
+        const select = document.getElementById('factoryEfficiency');
+        return select ? parseFloat(select.value) : 1.0;
       }
 
       /**
@@ -899,19 +1190,31 @@
 
         const tier = this.getCurrentTier();
         const customUnlocked = this.getCustomUnlocks();
-        const availableItems = CouponCalculator.getAvailableItems(tier, customUnlocked);
+        const includeHandCrafted = this.getIncludeHandCrafted();
+        const availableItems = CouponCalculator.getAvailableItems(tier, customUnlocked, includeHandCrafted);
 
         if (availableItems.length === 0) {
-          container.innerHTML = '<p class="small">No items available for the selected tier.</p>';
+          container.innerHTML = '<p class="small">No items available for the selected tier/settings.</p>';
           return;
         }
 
         let html = '<div class="inventory-container"><table>';
-        html += '<thead><tr><th>Item</th><th>Quantity</th><th>Points Each</th></tr></thead><tbody>';
+        html += '<thead><tr><th>Item</th><th>Quantity</th><th>Points Each</th><th>Production Rate</th><th>Complexity</th></tr></thead><tbody>';
 
         availableItems.forEach(([itemName, itemData]) => {
           const inputId = Utils.createSafeId(itemName);
-          const itemClass = itemName.toLowerCase().includes('ficsmas') ? 'event' : '';
+          let itemClass = '';
+          if (itemName.toLowerCase().includes('ficsmas')) {
+            itemClass = 'event';
+          }
+          
+          const productionDisplay = itemData.automatable && itemData.productionRate > 0 
+            ? `${itemData.productionRate}/min` 
+            : 'Hand-crafted';
+          const productionClass = itemData.automatable && itemData.productionRate > 0 ? '' : 'cannot';
+          
+          const complexityStars = '★'.repeat(itemData.complexity);
+          const complexityClass = itemData.complexity >= 4 ? 'cannot' : '';
           
           html += `
             <tr>
@@ -926,12 +1229,18 @@
                 >
               </td>
               <td class="small">${Utils.formatNumber(itemData.points)}</td>
+              <td class="small ${productionClass}">${productionDisplay}</td>
+              <td class="small ${complexityClass}">${complexityStars}</td>
             </tr>
           `;
         });
 
         html += '</tbody></table></div>';
-        html += '<div class="small" style="margin-top: 8px;">Enter quantities for items you currently have in storage.</div>';
+        html += '<div class="small" style="margin-top: 8px;">';
+        html += 'Enter quantities for items you currently have in storage. ';
+        html += '<strong>Production Rate</strong> = Items per minute with good automation. ';
+        html += '<strong>Complexity</strong> = Setup difficulty (★ = Easy, ★★★★★ = Very Hard).';
+        html += '</div>';
         
         container.innerHTML = html;
       }
@@ -950,13 +1259,17 @@
           recommendations, 
           alreadyPrinted = 0, 
           nextCouponNumber = 1, 
-          finalCouponNumber = wantCoupons 
+          finalCouponNumber = wantCoupons,
+          timeEstimate = null,
+          includeHandCrafted = false,
+          sinkingRate = null
         } = results;
         
         let html = '<div class="result">';
         
         // Header with summary
-        html += `<div class="stats">`;
+        const statsCount = timeEstimate ? 5 : 4;
+        html += `<div class="stats" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">`;
         html += `<div class="stat-card">`;
         html += `<div class="stat-value">${wantCoupons}</div>`;
         html += `<div>Coupon${wantCoupons > 1 ? 's' : ''} Wanted</div>`;
@@ -973,7 +1286,25 @@
         html += `<div class="stat-value">#${nextCouponNumber}-${finalCouponNumber}</div>`;
         html += `<div>Coupon Range</div>`;
         html += `</div>`;
+        
+        // Add time estimate if available
+        if (timeEstimate) {
+          html += `<div class="stat-card">`;
+          html += `<div class="stat-value">${timeEstimate.formattedShort}</div>`;
+          html += `<div>Estimated Time</div>`;
+          html += `</div>`;
+        }
+        
         html += `</div>`;
+
+        // Time estimate details
+        if (timeEstimate) {
+          html += '<div style="margin: 16px 0; padding: 12px; background: #2c3036; border-radius: 6px;">';
+          html += '<div class="small">';
+          html += `⏱️ At your current sinking rate, this will take approximately <strong>${timeEstimate.formattedLong}</strong>.`;
+          html += '</div>';
+          html += '</div>';
+        }
 
         // Coupon breakdown
         if (alreadyPrinted > 0 || wantCoupons > 1) {
@@ -997,12 +1328,35 @@
           html += '<div class="recommendations">';
           
           recommendations.forEach(rec => {
-            const itemClass = rec.isEvent ? 'event' : '';
+            let itemClass = '';
+            if (rec.isEvent) itemClass += 'event ';
+            if (!rec.isAutomatable) itemClass += 'cannot ';
+            
             html += `<div class="recommendation-item">`;
-            html += `<div class="item-name ${itemClass}">${Utils.sanitizeHtml(rec.item)}</div>`;
+            html += `<div class="item-name ${itemClass}">${Utils.sanitizeHtml(rec.item)}`;
+            if (!rec.isAutomatable) {
+              html += ` <span style="font-size: 0.8em; opacity: 0.7;">(Hand-crafted)</span>`;
+            }
+            html += `</div>`;
             html += `<div class="item-details">`;
             html += `Need: <strong>${Utils.formatNumber(rec.needed)}</strong> items `;
-            html += `(${Utils.formatNumber(rec.points)} points each)`;
+            html += `(${Utils.formatNumber(rec.points)} points each = ${Utils.formatNumber(rec.needed * rec.points)} total points)`;
+            
+            // Add realistic time estimate with breakdown if available
+            if (rec.realisticTime && sinkingRate) {
+              html += ` | <strong style="color: #7fdfff;">⏱️ ${rec.realisticTime.formattedShort}</strong>`;
+              if (rec.realisticTime.breakdown) {
+                html += ` <span class="small" style="opacity: 0.7;">${rec.realisticTime.breakdown}</span>`;
+              }
+            } else if (timeEstimate && sinkingRate) {
+              // Fallback to simple calculation for compatibility
+              const itemTotalPoints = rec.needed * rec.points;
+              const itemTimeEstimate = CouponCalculator.calculateTimeEstimate(itemTotalPoints, sinkingRate);
+              if (itemTimeEstimate) {
+                html += ` | <strong style="color: #7fdfff;">⏱️ ${itemTimeEstimate.formattedShort}</strong> <span class="small" style="opacity: 0.7;">(sink only)</span>`;
+              }
+            }
+            
             if (rec.have > 0) {
               html += ` | You have: <strong>${Utils.formatNumber(rec.have)}</strong>`;
             }
@@ -1017,9 +1371,16 @@
 
         // Additional info
         html += '<div class="small" style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #333;">';
-        html += 'Tips: Items are sorted by efficiency (fewest items needed first). ';
+        html += 'Tips: Items are now sorted by <strong>realistic total time</strong> (production + sinking + setup). ';
+        if (sinkingRate && timeEstimate) {
+          html += 'Time estimates include production rate and setup complexity. ';
+          html += 'Breakdown shows: <strong>Production time + Sinking time + Setup penalty</strong>. ';
+        }
+        if (!includeHandCrafted) {
+          html += 'Currently showing <strong>automated items only</strong> - check "Include hand-crafted items" to see all options. ';
+        }
         html += 'Event items (FICSMAS) are only available during seasonal events. ';
-        html += 'The "Points needed for next coupon" field should match the cost shown in your AWESOME Sink.';
+        html += 'Production rates assume reasonable factory setups, not maximum theoretical output.';
         html += '</div>';
         
         html += '</div>';
@@ -1071,14 +1432,25 @@
           // Get user selections
           const customUnlocked = this.ui.getCustomUnlocks();
           const inventory = this.ui.getCurrentInventory();
+          const includeHandCrafted = this.ui.getIncludeHandCrafted();
+          const sinkingRate = this.ui.getCurrentSinkingRate();
+          const factoryEfficiency = this.ui.getFactoryEfficiency();
 
           // Generate recommendations
           const recommendations = CouponCalculator.generateRecommendations(
             calculationResult.totalPointsNeeded,
             selectedTier,
             customUnlocked,
-            inventory
+            inventory,
+            includeHandCrafted,
+            sinkingRate,
+            factoryEfficiency
           );
+
+          // Calculate time estimate if sinking rate is provided
+          const timeEstimate = sinkingRate ? 
+            CouponCalculator.calculateTimeEstimate(calculationResult.totalPointsNeeded, sinkingRate) : 
+            null;
 
           // Display results with additional context
           this.ui.displayResults({
@@ -1087,7 +1459,10 @@
             recommendations,
             alreadyPrinted: calculationResult.alreadyPrinted,
             nextCouponNumber: calculationResult.nextCouponNumber,
-            finalCouponNumber: calculationResult.finalCouponNumber
+            finalCouponNumber: calculationResult.finalCouponNumber,
+            timeEstimate,
+            includeHandCrafted,
+            sinkingRate
           });
 
         } catch (error) {
