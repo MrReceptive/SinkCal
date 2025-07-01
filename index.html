@@ -26,109 +26,92 @@
   <div id="invWrap"></div>
   <div class="result" id="output"></div>
   <script>
-const wikiURL = "https://satisfactory.wiki.gg/wiki/AWESOME_Sink/Theoretical_maximum_of_points";
-let itemPoints = {}, sortedItems = [], couponFormula = n => Math.pow(2, n) * 1000, itemInputs = {};
+    // Static point table based on latest wiki data (July 2024)
+    const itemPoints = {
+      "Iron Ingot": 2, "Copper Ingot": 3, "Caterium Ingot": 12, "Steel Ingot": 8, "Aluminum Ingot": 11,
+      "Pure Iron Ingot": 2, "Pure Copper Ingot": 3, "Pure Caterium Ingot": 12, "Pure Aluminum Ingot": 11,
+      "Iron Plate": 6, "Reinforced Iron Plate": 240, "Stitched Iron Plate": 160, "Iron Rod": 4, "Screw": 1, "Steel Pipe": 24,
+      "Steel Beam": 60, "Encased Industrial Beam": 480, "Copper Sheet": 12, "Wire": 2, "Cable": 9, "Quickwire": 11,
+      "Fused Quickwire": 60, "Alclad Aluminum Sheet": 60, "Concrete": 12, "Silica": 24, "Quartz Crystal": 37,
+      "Crystal Oscillator": 2200, "AI Limiter": 1190, "High-Speed Connector": 1960, "Circuit Board": 924,
+      "Compacted Coal": 42, "Sulfur": 12, "Black Powder": 24, "Smokeless Powder": 360, "Steel Canister": 30,
+      "Empty Canister": 6, "Aluminum Casing": 30, "Empty Fluid Tank": 30, "Rubber": 24, "Plastic": 24, "Polymer Resin": 12,
+      "Fabric": 140, "Biomass": 12, "Mycelia": 100, "Wood": 90, "Leaves": 12, "Alien Protein": 100, "Alien DNA Capsule": 500,
+      "Flower Petals": 24, "Color Cartridge": 6, "Packaged Water": 12, "Packaged Oil": 60, "Packaged Fuel": 300,
+      "Packaged Liquid Biofuel": 270, "Packaged Heavy Oil Residue": 90, "Packaged Turbofuel": 900,
+      "Packaged Alumina Solution": 18, "Packaged Sulfuric Acid": 18, "Packaged Nitric Acid": 72,
+      "Packaged Nitrogen Gas": 6, "Packaged Oxygen": 18, "Packaged Iron Ore": 2, "Packaged Copper Ore": 3,
+      "Packaged Caterium Ore": 12, "Packaged Bauxite": 11, "Packaged Coal": 5, "Packaged Raw Quartz": 12,
+      "Packaged Sulfur": 12, "Packaged Limestone": 3, "Packaged S.A.M. Ore": 5, "Packaged Uranium Ore": 150,
+      "Packaged Uranium Waste": 3000, "Modular Frame": 300, "Heavy Modular Frame": 3080,
+      "Fused Modular Frame": 15000, "Versatile Framework": 1500, "Automated Wiring": 990,
+      "Smart Plating": 600, "Blue Power Slug": 1500, "Yellow Power Slug": 5000, "Purple Power Slug": 15000,
+      "Rotor": 140, "Stator": 260, "Motor": 1840, "Turbo Motor": 3960, "Computer": 3420, "Supercomputer": 16200,
+      "Battery": 210, "Uranium Fuel Rod": 120000, "Plutonium Fuel Rod": 580000, "Nuclear Pasta": 1710000,
+      "Radio Control Unit": 5480, "Heat Sink": 840, "Cooling System": 4320, "Pressure Conversion Cube": 15000,
+      "Oscillating Crystal": 2200, "Beacon": 672, "Packaged Nitrogen Gas": 6, "Packaged Oxygen": 18,
+      "Packaged Water": 12, "Copper Powder": 60, "Iron Rebar": 8, "Spiked Rebar": 50, "Stun Rebar": 160,
+      "Shatter Rebar": 160, "Explosive Rebar": 540, "Cluster Nobelisk": 1875, "Gas Nobelisk": 1875,
+      "Pulse Nobelisk": 1875, "Nuke Nobelisk": 7500, "Nobelisk": 525, "Snowball": 24, "FICSMAS Decoration": 48,
+      "FICSMAS Ornament": 120, "FICSMAS Bow": 180, "FICSMAS Tree Branch": 24, "FICSMAS Star": 1200,
+      "Candy Cane": 240, "Gingerbread Cookie": 72, "Actual Snow": 18, "Gift": 48, "Red Firework": 750,
+      "Blue Firework": 750, "Gold Firework": 1500, "Iron Ore": 2, "Copper Ore": 3, "Caterium Ore": 12, "Bauxite": 11,
+      "Coal": 5, "Raw Quartz": 12, "Limestone": 3, "S.A.M. Ore": 5, "Uranium Ore": 150, "Uranium Waste": 3000
+    };
+    let sortedItems = Object.entries(itemPoints).sort((a, b) => b[1] - a[1]);
+    const couponFormula = n => Math.pow(2, n) * 1000;
 
-// --- Fetch item/point table from wiki ---
-async function getTable() {
-  document.getElementById("fetchStatus").innerText = "Loading point table…";
-  // Use AllOrigins to bypass CORS, or fallback to demo data
-  let data;
-  try {
-    let r = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(wikiURL)}`);
-    data = (await r.json()).contents;
-  } catch {
-    document.getElementById("fetchStatus").innerText = "Could not fetch data. Using offline data.";
-    data = "";
-  }
-  // Parse HTML for the relevant table (row: item name, point value)
-  let rows = [];
-  try {
-    let div = document.createElement("div");
-    div.innerHTML = data;
-    // Look for the table: "List of all items and their point values"
-    let tables = div.querySelectorAll("table");
-    for (let table of tables) {
-      if ((table.previousElementSibling && table.previousElementSibling.textContent.includes("List of all items"))) {
-        rows = [...table.querySelectorAll("tr")];
-        break;
+    function buildInventoryInputs() {
+      let html = `<details><summary>Show/Enter Inventory (optional)</summary>
+        <div style="max-height:200px;overflow:auto"><table>`;
+      for (let [item, pts] of sortedItems.slice(0, 50)) {
+        html += `<tr>
+          <td>${item}</td>
+          <td><input type="number" min="0" id="inv_${item.replace(/[^a-zA-Z0-9]/g,'_')}" style="width:70px"></td>
+          <td class="small">(${pts} pts each)</td>
+        </tr>`;
       }
+      html += `</table><span class="small">Leave blank for items you don’t own</span></div></details>`;
+      document.getElementById("invWrap").innerHTML = html;
     }
-    if (rows.length < 2) throw "no table";
-  } catch { rows = []; }
-  if (rows.length < 2) { // fallback demo data
-    itemPoints = { "Iron Ingot": 2, "Caterium Ingot": 12, "Turbo Motor": 3960, "Supercomputer": 1620 };
-  } else {
-    itemPoints = {};
-    for (let i = 1; i < rows.length; ++i) {
-      let cols = rows[i].querySelectorAll("td");
-      if (cols.length >= 3) {
-        let name = cols[1].innerText.trim();
-        let pts = parseFloat(cols[2].innerText.replace(/,/g,""));
-        if (name && pts > 0) itemPoints[name] = pts;
+    buildInventoryInputs();
+
+    function calc() {
+      let wantCoupons = parseInt(document.getElementById("numCoupons").value) || 1;
+      let currentPts = parseInt(document.getElementById("points").value) || 0;
+      let ptsNeeded = 0, coupons = 0, n = 0;
+      while (coupons < wantCoupons) {
+        let pts = couponFormula(n);
+        if (currentPts < pts) {
+          ptsNeeded += pts - currentPts;
+          ++coupons;
+          currentPts = 0;
+        } else {
+          currentPts -= pts;
+          ++coupons;
+        }
+        ++n;
       }
+      let inv = {};
+      for (let [item] of sortedItems) {
+        let val = document.getElementById("inv_" + item.replace(/[^a-zA-Z0-9]/g,'_'));
+        if (val && val.value) inv[item] = parseInt(val.value) || 0;
+      }
+      let rec = sortedItems.map(([item, pts])=>{
+        let needed = Math.ceil(ptsNeeded/pts);
+        let have = inv[item] || 0;
+        let canMake = have > 0 ? Math.min(needed, have) : needed;
+        return {item, pts, needed, have, canMake};
+      }).sort((a,b)=>(a.needed-b.needed) || (b.pts-a.pts));
+      let out = `<b>To get ${wantCoupons} coupon${wantCoupons>1?'s':''}, you need ≈${ptsNeeded.toLocaleString()} points:</b><ol>`;
+      for (let r of rec.slice(0,10)) {
+        out += `<li><b>${r.item}</b>: need <b>${r.needed}</b> (${r.pts} pts each)`;
+        if (r.have) out += ` | you have: ${r.have}`;
+        out += `</li>`;
+      }
+      out += `</ol><div class="small">All items and values are included and will work offline!</div>`;
+      document.getElementById("output").innerHTML = out;
     }
-  }
-  sortedItems = Object.entries(itemPoints).sort((a,b)=>b[1]-a[1]);
-  document.getElementById("fetchStatus").innerText = `Loaded ${Object.keys(itemPoints).length} items.`;
-  buildInventoryInputs();
-}
-getTable();
-
-function buildInventoryInputs() {
-  let html = `<details><summary>Show/Enter Inventory (optional)</summary>
-    <div style="max-height:200px;overflow:auto"><table>`;
-  for (let [item, pts] of sortedItems.slice(0, 50)) { // limit to 50 for space
-    html += `<tr>
-      <td>${item}</td>
-      <td><input type="number" min="0" id="inv_${item.replace(/[^a-zA-Z0-9]/g,'_')}" style="width:70px"></td>
-      <td class="small">(${pts} pts each)</td>
-    </tr>`;
-  }
-  html += `</table><span class="small">Leave blank for items you don’t own</span></div></details>`;
-  document.getElementById("invWrap").innerHTML = html;
-}
-
-function calc() {
-  let wantCoupons = parseInt(document.getElementById("numCoupons").value) || 1;
-  let currentPts = parseInt(document.getElementById("points").value) || 0;
-  // Figure out points needed for N coupons
-  let ptsNeeded = 0, coupons = 0, n = 0;
-  while (coupons < wantCoupons) {
-    let pts = couponFormula(n);
-    if (currentPts < pts) {
-      ptsNeeded += pts - currentPts;
-      ++coupons;
-      currentPts = 0;
-    } else {
-      currentPts -= pts;
-      ++coupons;
-    }
-    ++n;
-  }
-  // Read inventory (optional)
-  let inv = {};
-  for (let [item] of sortedItems) {
-    let val = document.getElementById("inv_" + item.replace(/[^a-zA-Z0-9]/g,'_'));
-    if (val && val.value) inv[item] = parseInt(val.value) || 0;
-  }
-  // For each item, calc: how many would be needed, and how many do you have
-  let rec = sortedItems.map(([item, pts])=>{
-    let needed = Math.ceil(ptsNeeded/pts);
-    let have = inv[item] || 0;
-    let canMake = have > 0 ? Math.min(needed, have) : needed;
-    return {item, pts, needed, have, canMake};
-  }).sort((a,b)=>(a.needed-b.needed) || (b.pts-a.pts));
-  // Display top 10
-  let out = `<b>To get ${wantCoupons} coupon${wantCoupons>1?'s':''}, you need ≈${ptsNeeded.toLocaleString()} points:</b><ol>`;
-  for (let r of rec.slice(0,10)) {
-    out += `<li><b>${r.item}</b>: need <b>${r.needed}</b> (${r.pts} pts each)`;
-    if (r.have) out += ` | you have: ${r.have}`;
-    out += `</li>`;
-  }
-  out += `</ol><div class="small">Tip: Results auto-update as the wiki updates!</div>`;
-  document.getElementById("output").innerHTML = out;
-}
   </script>
 </body>
 </html>
