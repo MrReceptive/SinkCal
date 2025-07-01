@@ -2,28 +2,214 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Satisfactory AWESOME Sink Coupon Optimizer (Tier & Custom Unlocks)</title>
+  <title>Satisfactory AWESOME Sink Coupon Optimizer (Refactored)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
-    body { font-family: system-ui, sans-serif; background: #23272e; color: #f6f6f7; padding: 24px; }
-    input, button, select, textarea { font-size: 1em; margin: 3px 0 10px 0; padding: 3px 8px; }
-    textarea { width: 100%; min-height: 54px; }
-    .result { background: #181a1b; border-radius: 10px; padding: 12px; margin-top: 10px; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border-bottom: 1px solid #333; padding: 6px 10px; }
-    th { background: #32363e; }
-    tr:nth-child(even) { background: #262a30; }
-    .small { font-size: 0.95em; opacity: 0.7; }
-    .cannot { color: #b55; }
-    .event { color: #7fdfff; }
+    body { 
+      font-family: system-ui, sans-serif; 
+      background: #23272e; 
+      color: #f6f6f7; 
+      padding: 24px; 
+      max-width: 1200px; 
+      margin: 0 auto; 
+    }
+    
+    input, button, select, textarea { 
+      font-size: 1em; 
+      margin: 3px 0 10px 0; 
+      padding: 8px 12px; 
+      border: 1px solid #444;
+      background: #2c3036;
+      color: #f6f6f7;
+      border-radius: 4px;
+    }
+    
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #7fdfff;
+      box-shadow: 0 0 0 2px rgba(127, 223, 255, 0.2);
+    }
+    
+    button {
+      background: #5865f2;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+    
+    button:hover {
+      background: #4752c4;
+    }
+    
+    button:disabled {
+      background: #4a4d55;
+      cursor: not-allowed;
+    }
+    
+    textarea { 
+      width: 100%; 
+      min-height: 54px; 
+      resize: vertical;
+      font-family: inherit;
+    }
+    
+    .result { 
+      background: #181a1b; 
+      border-radius: 10px; 
+      padding: 16px; 
+      margin-top: 16px; 
+      border: 1px solid #333;
+    }
+    
+    .error {
+      background: #d32f2f;
+      color: white;
+      padding: 12px;
+      border-radius: 6px;
+      margin: 10px 0;
+    }
+    
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    
+    table { 
+      border-collapse: collapse; 
+      width: 100%; 
+    }
+    
+    th, td { 
+      border-bottom: 1px solid #333; 
+      padding: 8px 12px; 
+      text-align: left;
+    }
+    
+    th { 
+      background: #32363e; 
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+    }
+    
+    tr:nth-child(even) { 
+      background: #262a30; 
+    }
+    
+    tr:hover {
+      background: #2a2f35;
+    }
+    
+    .small { 
+      font-size: 0.9em; 
+      opacity: 0.75; 
+    }
+    
+    .cannot { 
+      color: #ff6b6b; 
+    }
+    
+    .event { 
+      color: #7fdfff; 
+      font-weight: 500;
+    }
+    
+    summary { 
+      cursor: pointer;
+      padding: 8px 0;
+      font-weight: 600;
+    }
+    
+    details[open] summary {
+      margin-bottom: 12px;
+    }
+    
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    
+    .control-group {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .control-group label {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .inventory-container {
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #333;
+      border-radius: 6px;
+    }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin: 16px 0;
+    }
+    
+    .stat-card {
+      background: #2c3036;
+      padding: 12px;
+      border-radius: 6px;
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 1.5em;
+      font-weight: 700;
+      color: #7fdfff;
+    }
+    
+    .recommendations {
+      counter-reset: recommendation-counter;
+    }
+    
+    .recommendation-item {
+      counter-increment: recommendation-counter;
+      background: #2c3036;
+      margin: 8px 0;
+      padding: 12px;
+      border-radius: 6px;
+      border-left: 4px solid #5865f2;
+    }
+    
+    .recommendation-item::before {
+      content: counter(recommendation-counter) ". ";
+      font-weight: 700;
+      color: #7fdfff;
+    }
+    
+    .item-name {
+      font-weight: 600;
+      color: #f6f6f7;
+    }
+    
+    .item-details {
+      margin-top: 4px;
+      font-size: 0.9em;
+      opacity: 0.8;
+    }
   </style>
 </head>
 <body>
-  <h2>AWESOME Sink Coupon Optimizer <span class="small">(Tier + Custom Unlocks)</span></h2>
-  <div>
-    <label>
-      <b>1. Select your unlocked Tier:</b> 
-      <select id="tierSelect" onchange="rebuildInventory()">
+  <h1>AWESOME Sink Coupon Optimizer 
+    <span class="small">(Enhanced with Accurate Math)</span>
+  </h1>
+  
+  <div class="controls">
+    <div class="control-group">
+      <label for="tierSelect">Select your unlocked Tier:</label>
+      <select id="tierSelect">
         <option value="1">Tier 1 (Hub Start)</option>
         <option value="2">Tier 2</option>
         <option value="3">Tier 3</option>
@@ -33,259 +219,891 @@
         <option value="7">Tier 7</option>
         <option value="8" selected>Tier 8 (Endgame/Everything)</option>
       </select>
-    </label>
-    <br>
-    <span class="small">OR paste unlocked items/recipes below (one per line or comma-separated):</span>
-    <textarea id="customUnlocked" placeholder="E.g. Iron Ingot, Reinforced Iron Plate, Computer"></textarea>
-    <br>
-    <label>How many coupons do you want? <input id="numCoupons" type="number" value="1" min="1" max="100"></label><br>
-    <label>Current points (or points to next coupon): <input id="points" type="number" value="0" min="0"></label>
-    <button onclick="calc()">Find Best Items</button>
-    <span class="small" id="fetchStatus"></span>
+    </div>
+    
+    <div class="control-group">
+      <label for="numCoupons">Number of coupons wanted:</label>
+      <input id="numCoupons" type="number" value="1" min="1" max="1000">
+    </div>
+    
+    <div class="control-group">
+      <label for="points">Points needed for next coupon:</label>
+      <input id="points" type="number" value="500" min="0" placeholder="500">
+      <div class="small">Enter the cost of your next coupon (500 for first coupon, 1250 for 4th-6th, etc.)</div>
+    </div>
   </div>
-  <div id="invWrap"></div>
-  <div class="result" id="output"></div>
+  
+  <div class="control-group">
+    <label for="customUnlocked">Custom unlocked items (optional):</label>
+    <textarea id="customUnlocked" placeholder="Enter item names separated by commas or newlines. E.g: Iron Ingot, Reinforced Iron Plate, Computer"></textarea>
+    <div class="small">Leave blank to use tier-based filtering</div>
+  </div>
+  
+  <button id="calculateBtn" onclick="window.optimizer.calculate()">
+    Find Best Items
+  </button>
+  
+  <div id="errorContainer"></div>
+  
+  <details id="inventorySection">
+    <summary>Show/Enter Current Inventory (Optional)</summary>
+    <div id="inventoryContainer"></div>
+  </details>
+  
+  <div id="resultsContainer"></div>
+
   <script>
-    // Items that cannot be sunk
-    const cannotBeSunk = [
-      "Alien Protein", "Bacon Agaric", "Beryl Nut", "Blue Power Slug", "Encased Plutonium Cell",
-      "FICSIT Coupon", "Ficsonium Fuel Rod", "Ficsonium", "Hatcher Remains", "Hog Remains",
-      "Mercer Sphere", "Non-Fissile Uranium", "Paleberry", "Plutonium Pellet", "Plutonium Waste",
-      "Power Shard", "Purple Power Slug", "Somersloop", "Spitter Remains", "Stinger Remains",
-      "Uranium Waste", "Yellow Power Slug"
-    ];
-    // Points table and unlock tier for each item
-    // If you want to tweak tiers, just edit this mapping!
-    // (Tier: 1=Hub Start, ... 8=Endgame, 9=Event Only)
-    const pointsTable = [
-      [1, ["Blue FICSMAS Ornament", "FICSIT Coupon", "FICSMAS Gift", "Iron Ore"], 9],
-      [2, ["FICSMAS Tree Branch", "Red FICSMAS Ornament"], 9],
-      [2, ["Iron Ingot", "Limestone", "Screws"], 1],
-      [3, ["Coal", "Copper Ore", "Leaves"], 2],
-      [4, ["FICSMAS Bow"], 9],
-      [4, ["Iron Rod"], 1],
-      [5, ["FICSMAS Actual Snow"], 9],
-      [6, ["Candy Cane", "Copper Ingot", "Iron Plate", "Wire"], 1],
-      [7, ["Caterium Ore"], 3],
-      [8, ["Bauxite", "Iron Rebar", "Steel Ingot"], 4],
-      [10, ["Mycelia"], 2],
-      [11, ["Sulfur"], 3],
-      [12, ["Biomass", "Concrete", "Polymer Resin"], 1],
-      [14, ["Black Powder"], 3],
-      [15, ["Raw Quartz"], 3],
-      [17, ["Quickwire"], 3],
-      [18, ["Iron FICSMAS Ornament"], 9],
-      [20, ["Petroleum Coke", "SAM", "Silica"], 4],
-      [24, ["Cable", "Copper Sheet", "Steel Pipe"], 2],
-      [25, ["Rifle Ammo"], 6],
-      [27, ["Aluminum Scrap"], 7],
-      [28, ["Compacted Coal"], 5],
-      [30, ["Snowball", "Wood"], 1],
-      [32, ["Copper FICSMAS Ornament", "Sparkly Fireworks"], 9],
-      [35, ["Uranium"], 7],
-      [40, ["Fancy Fireworks"], 9],
-      [42, ["Caterium Ingot"], 3],
-      [48, ["Solid Biofuel"], 2],
-      [50, ["Quartz Crystal"], 3],
-      [56, ["Portable Miner"], 1],
-      [58, ["Smokeless Powder"], 4],
-      [60, ["Empty Canister", "Rubber", "Sweet Fireworks"], 3],
-      [64, ["Steel Beam"], 4],
-      [72, ["Copper Powder"], 5],
-      [75, ["Plastic"], 5],
-      [84, ["'Employee of the Planet' Cup", "Cup"], 9],
-      [100, ["FICSMAS Ornament Bundle"], 9],
-      [120, ["Reinforced Iron Plate", "Turbo Rifle Ammo"], 2],
-      [125, ["Medicinal Inhaler"], 4],
-      [130, ["Packaged Water"], 4],
-      [131, ["Aluminum Ingot"], 7],
-      [140, ["Fabric", "Rotor"], 3],
-      [147, ["Encased Uranium Cell"], 7],
-      [152, ["Nobelisk", "Packaged Sulfuric Acid"], 5],
-      [160, ["Packaged Alumina Solution", "Reanimated SAM"], 7],
-      [170, ["Empty Fluid Tank"], 5],
-      [180, ["Packaged Heavy Oil Residue", "Packaged Oil"], 5],
-      [186, ["Stun Rebar"], 4],
-      [210, ["Alien Power Matrix"], 8],
-      [240, ["Diamonds", "Stator"], 5],
-      [266, ["Alclad Aluminum Sheet"], 7],
-      [270, ["Packaged Fuel"], 5],
-      [312, ["Packaged Nitrogen Gas"], 8],
-      [332, ["Shatter Rebar"], 5],
-      [360, ["Explosive Rebar"], 5],
-      [370, ["Packaged Liquid Biofuel"], 6],
-      [393, ["Aluminum Casing"], 7],
-      [408, ["Modular Frame"], 4],
-      [412, ["Packaged Nitric Acid"], 8],
-      [465, ["Battery"], 6],
-      [520, ["Smart Plating"], 4],
-      [528, ["Encased Industrial Beam"], 5],
-      [544, ["Gas Nobelisk"], 6],
-      [570, ["Packaged Turbofuel"], 6],
-      [608, ["Gas Filter"], 6],
-      [630, ["FICSMAS Wreath"], 9],
-      [696, ["Circuit Board"], 5],
-      [855, ["Homing Rifle Ammo"], 6],
-      [920, ["AI Limiter"], 5],
-      [960, ["Time Crystal"], 8],
-      [1028, ["Packaged Rocket Fuel"], 7],
-      [1176, ["Versatile Framework"], 6],
-      [1291, ["Ficsite Trigon"], 8],
-      [1376, ["Cluster Nobelisk"], 8],
-      [1400, ["Object Scanner"], 2],
-      [1440, ["Automated Wiring"], 5],
-      [1520, ["Motor"], 4],
-      [1533, ["Pulse Nobelisk"], 7],
-      [1552, ["Factory Cart™"], 3],
-      [1780, ["Dark Matter Crystal"], 8],
-      [1852, ["Golden Factory Cart™"], 9],
-      [1880, ["Xeno-Zapper"], 1],
-      [1936, ["Ficsite Ingot"], 8],
-      [1968, ["Rebar Gun", "SAM Fluctuator"], 5],
-      [2274, ["Iodine-Infused Filter"], 6],
-      [2560, ["Electromagnetic Control Rod"], 7],
-      [2760, ["Chainsaw"], 1],
-      [2804, ["Heat Sink"], 6],
-      [3072, ["Crystal Oscillator"], 6],
-      [3776, ["High-Speed Connector"], 6],
-      [4088, ["Blade Runners"], 3],
-      [5246, ["Packaged Ionized Fuel"], 8],
-      [5284, ["Zipline"], 4],
-      [6080, ["Parachute"], 4],
-      [6480, ["Nobelisk Detonator"], 5],
-      [6540, ["FICSMAS Wonder Star"], 9],
-      [7850, ["Candy Cane Basher"], 9],
-      [8352, ["Computer"], 6],
-      [9480, ["Rifle"], 6],
-      [9960, ["Modular Engine"], 6],
-      [10800, ["Heavy Modular Frame"], 6],
-      [11000, ["Magnetic Field Generator"], 8],
-      [12006, ["Cooling System"], 7],
-      [14960, ["Gas Mask"], 6],
-      [16580, ["Jetpack"], 6],
-      [17800, ["Xeno-Basher"], 4],
-      [19600, ["Nuke Nobelisk"], 8],
-      [32352, ["Radio Control Unit"], 7],
-      [37292, ["Superposition Oscillator"], 8],
-      [43468, ["Uranium Fuel Rod"], 7],
-      [54100, ["Hazmat Suit"], 7],
-      [62840, ["Fused Modular Frame"], 7],
-      [76368, ["Adaptive Control Unit"], 7],
-      [97352, ["Supercomputer"], 7],
-      [114675, ["Singularity Cell"], 8],
-      [153184, ["Plutonium Fuel Rod"], 8],
-      [240496, ["Turbo Motor"], 7],
-      [248034, ["Neural-Quantum Processor"], 8],
-      [255088, ["Pressure Conversion Cube"], 8],
-      [265632, ["Hoverpack"], 8],
-      [301778, ["Biochemical Sculptor"], 8],
-      [500176, ["Assembly Director System"], 8],
-      [538976, ["Nuclear Pasta"], 8],
-      [597652, ["AI Expansion Server"], 8],
-      [728508, ["Thermal Propulsion Rocket"], 8],
-      [2895334, ["Ballistic Warp Drive"], 8]
-    ];
-    // Flatten for select/search, and add unlock tier for each item
-    let itemPoints = {}, itemTier = {};
-    pointsTable.forEach(([pts, items, tier]) => items.forEach(item => {
-      itemPoints[item] = pts;
-      itemTier[item] = tier;
-    }));
-    let sortedItems = Object.entries(itemPoints).sort((a, b) => b[1] - a[1]);
+    /**
+     * Configuration constants for the optimizer
+     */
+    const CONFIG = {
+      MAX_COUPONS: 1000,
+      MAX_POINTS: 999999999,
+      BASE_COUPON_COST: 500,
+      COST_MULTIPLIER: 250,
+      BASE_COST_OFFSET: 1000,
+      MAX_COST: 249501250,
+      MAX_DISPLAY_RECOMMENDATIONS: 15,
+      FIRST_THREE_COUPONS: 3,
+      HIGH_TIER_COUPON_LIMIT: 3000,
+      COUPON_GROUP_SIZE: 3,
+      DEBOUNCE_DELAY: 300
+    };
 
-    // Helper: process user custom unlocks (case/space tolerant)
-    function getCustomUnlocks() {
-      let list = document.getElementById("customUnlocked").value
-        .replace(/,/g, "\n")
-        .split(/\n/)
-        .map(x => x.trim().toLowerCase())
-        .filter(x => !!x);
-      if (!list.length) return null;
-      // Build a set for fast lookup
-      let unlocked = {};
-      Object.keys(itemPoints).forEach(it => {
-        if (list.includes(it.toLowerCase())) unlocked[it] = true;
-      });
-      return unlocked;
-    }
-
-    function buildInventoryInputs() {
-      let tier = parseInt(document.getElementById("tierSelect").value);
-      let unlocked = getCustomUnlocks();
-      let html = `<details><summary>Show/Enter Inventory (optional)</summary>
-        <div style="max-height:260px;overflow:auto"><table>`;
-      for (let [item, pts] of sortedItems) {
-        if (cannotBeSunk.includes(item)) continue;
-        let isAllowed = unlocked
-          ? unlocked[item]
-          : (itemTier[item] || 9) <= tier || (itemTier[item] === 9 && tier === 8);
-        if (!isAllowed) continue;
-        let labelClass = "";
-        if (item.toLowerCase().includes("ficmas")) labelClass = "event";
-        html += `<tr>
-          <td class="${labelClass}">${item}</td>
-          <td><input type="number" min="0" id="inv_${item.replace(/[^a-zA-Z0-9]/g,'_')}" style="width:70px"></td>
-          <td class="small">(${pts.toLocaleString()} pts each)</td>
-        </tr>`;
+    /**
+     * Game data separated from logic for better maintainability
+     */
+    const GAME_DATA = {
+      cannotBeSunk: [
+        "Alien Protein", "Bacon Agaric", "Beryl Nut", "Blue Power Slug", 
+        "Encased Plutonium Cell", "FICSIT Coupon", "Ficsonium Fuel Rod", 
+        "Ficsonium", "Hatcher Remains", "Hog Remains", "Mercer Sphere", 
+        "Non-Fissile Uranium", "Paleberry", "Plutonium Pellet", "Plutonium Waste", 
+        "Power Shard", "Purple Power Slug", "Somersloop", "Spitter Remains", 
+        "Stinger Remains", "Uranium Waste", "Yellow Power Slug"
+      ],
+      
+      items: {
+        "Blue FICSMAS Ornament": { points: 1, tier: 9 },
+        "FICSIT Coupon": { points: 1, tier: 9 },
+        "FICSMAS Gift": { points: 1, tier: 9 },
+        "Iron Ore": { points: 1, tier: 9 },
+        "FICSMAS Tree Branch": { points: 2, tier: 9 },
+        "Red FICSMAS Ornament": { points: 2, tier: 9 },
+        "Iron Ingot": { points: 2, tier: 1 },
+        "Limestone": { points: 2, tier: 1 },
+        "Screws": { points: 2, tier: 1 },
+        "Coal": { points: 3, tier: 2 },
+        "Copper Ore": { points: 3, tier: 2 },
+        "Leaves": { points: 3, tier: 2 },
+        "FICSMAS Bow": { points: 4, tier: 9 },
+        "Iron Rod": { points: 4, tier: 1 },
+        "FICSMAS Actual Snow": { points: 5, tier: 9 },
+        "Candy Cane": { points: 6, tier: 1 },
+        "Copper Ingot": { points: 6, tier: 1 },
+        "Iron Plate": { points: 6, tier: 1 },
+        "Wire": { points: 6, tier: 1 },
+        "Caterium Ore": { points: 7, tier: 3 },
+        "Bauxite": { points: 8, tier: 4 },
+        "Iron Rebar": { points: 8, tier: 4 },
+        "Steel Ingot": { points: 8, tier: 4 },
+        "Mycelia": { points: 10, tier: 2 },
+        "Sulfur": { points: 11, tier: 3 },
+        "Biomass": { points: 12, tier: 1 },
+        "Concrete": { points: 12, tier: 1 },
+        "Polymer Resin": { points: 12, tier: 1 },
+        "Black Powder": { points: 14, tier: 3 },
+        "Raw Quartz": { points: 15, tier: 3 },
+        "Quickwire": { points: 17, tier: 3 },
+        "Iron FICSMAS Ornament": { points: 18, tier: 9 },
+        "Petroleum Coke": { points: 20, tier: 4 },
+        "SAM": { points: 20, tier: 4 },
+        "Silica": { points: 20, tier: 4 },
+        "Cable": { points: 24, tier: 2 },
+        "Copper Sheet": { points: 24, tier: 2 },
+        "Steel Pipe": { points: 24, tier: 2 },
+        "Rifle Ammo": { points: 25, tier: 6 },
+        "Aluminum Scrap": { points: 27, tier: 7 },
+        "Compacted Coal": { points: 28, tier: 5 },
+        "Snowball": { points: 30, tier: 1 },
+        "Wood": { points: 30, tier: 1 },
+        "Copper FICSMAS Ornament": { points: 32, tier: 9 },
+        "Sparkly Fireworks": { points: 32, tier: 9 },
+        "Uranium": { points: 35, tier: 7 },
+        "Fancy Fireworks": { points: 40, tier: 9 },
+        "Caterium Ingot": { points: 42, tier: 3 },
+        "Solid Biofuel": { points: 48, tier: 2 },
+        "Quartz Crystal": { points: 50, tier: 3 },
+        "Portable Miner": { points: 56, tier: 1 },
+        "Smokeless Powder": { points: 58, tier: 4 },
+        "Empty Canister": { points: 60, tier: 3 },
+        "Rubber": { points: 60, tier: 3 },
+        "Sweet Fireworks": { points: 60, tier: 3 },
+        "Steel Beam": { points: 64, tier: 4 },
+        "Copper Powder": { points: 72, tier: 5 },
+        "Plastic": { points: 75, tier: 5 },
+        "'Employee of the Planet' Cup": { points: 84, tier: 9 },
+        "Cup": { points: 84, tier: 9 },
+        "FICSMAS Ornament Bundle": { points: 100, tier: 9 },
+        "Reinforced Iron Plate": { points: 120, tier: 2 },
+        "Turbo Rifle Ammo": { points: 120, tier: 2 },
+        "Medicinal Inhaler": { points: 125, tier: 4 },
+        "Packaged Water": { points: 130, tier: 4 },
+        "Aluminum Ingot": { points: 131, tier: 7 },
+        "Fabric": { points: 140, tier: 3 },
+        "Rotor": { points: 140, tier: 3 },
+        "Encased Uranium Cell": { points: 147, tier: 7 },
+        "Nobelisk": { points: 152, tier: 5 },
+        "Packaged Sulfuric Acid": { points: 152, tier: 5 },
+        "Packaged Alumina Solution": { points: 160, tier: 7 },
+        "Reanimated SAM": { points: 160, tier: 7 },
+        "Empty Fluid Tank": { points: 170, tier: 5 },
+        "Packaged Heavy Oil Residue": { points: 180, tier: 5 },
+        "Packaged Oil": { points: 180, tier: 5 },
+        "Stun Rebar": { points: 186, tier: 4 },
+        "Alien Power Matrix": { points: 210, tier: 8 },
+        "Diamonds": { points: 240, tier: 5 },
+        "Stator": { points: 240, tier: 5 },
+        "Alclad Aluminum Sheet": { points: 266, tier: 7 },
+        "Packaged Fuel": { points: 270, tier: 5 },
+        "Packaged Nitrogen Gas": { points: 312, tier: 8 },
+        "Shatter Rebar": { points: 332, tier: 5 },
+        "Explosive Rebar": { points: 360, tier: 5 },
+        "Packaged Liquid Biofuel": { points: 370, tier: 6 },
+        "Aluminum Casing": { points: 393, tier: 7 },
+        "Modular Frame": { points: 408, tier: 4 },
+        "Packaged Nitric Acid": { points: 412, tier: 8 },
+        "Battery": { points: 465, tier: 6 },
+        "Smart Plating": { points: 520, tier: 4 },
+        "Encased Industrial Beam": { points: 528, tier: 5 },
+        "Gas Nobelisk": { points: 544, tier: 6 },
+        "Packaged Turbofuel": { points: 570, tier: 6 },
+        "Gas Filter": { points: 608, tier: 6 },
+        "FICSMAS Wreath": { points: 630, tier: 9 },
+        "Circuit Board": { points: 696, tier: 5 },
+        "Homing Rifle Ammo": { points: 855, tier: 6 },
+        "AI Limiter": { points: 920, tier: 5 },
+        "Time Crystal": { points: 960, tier: 8 },
+        "Packaged Rocket Fuel": { points: 1028, tier: 7 },
+        "Versatile Framework": { points: 1176, tier: 6 },
+        "Ficsite Trigon": { points: 1291, tier: 8 },
+        "Cluster Nobelisk": { points: 1376, tier: 8 },
+        "Object Scanner": { points: 1400, tier: 2 },
+        "Automated Wiring": { points: 1440, tier: 5 },
+        "Motor": { points: 1520, tier: 4 },
+        "Pulse Nobelisk": { points: 1533, tier: 7 },
+        "Factory Cart™": { points: 1552, tier: 3 },
+        "Dark Matter Crystal": { points: 1780, tier: 8 },
+        "Golden Factory Cart™": { points: 1852, tier: 9 },
+        "Xeno-Zapper": { points: 1880, tier: 1 },
+        "Ficsite Ingot": { points: 1936, tier: 8 },
+        "Rebar Gun": { points: 1968, tier: 5 },
+        "SAM Fluctuator": { points: 1968, tier: 5 },
+        "Iodine-Infused Filter": { points: 2274, tier: 6 },
+        "Electromagnetic Control Rod": { points: 2560, tier: 7 },
+        "Chainsaw": { points: 2760, tier: 1 },
+        "Heat Sink": { points: 2804, tier: 6 },
+        "Crystal Oscillator": { points: 3072, tier: 6 },
+        "High-Speed Connector": { points: 3776, tier: 6 },
+        "Blade Runners": { points: 4088, tier: 3 },
+        "Packaged Ionized Fuel": { points: 5246, tier: 8 },
+        "Zipline": { points: 5284, tier: 4 },
+        "Parachute": { points: 6080, tier: 4 },
+        "Nobelisk Detonator": { points: 6480, tier: 5 },
+        "FICSMAS Wonder Star": { points: 6540, tier: 9 },
+        "Candy Cane Basher": { points: 7850, tier: 9 },
+        "Computer": { points: 8352, tier: 6 },
+        "Rifle": { points: 9480, tier: 6 },
+        "Modular Engine": { points: 9960, tier: 6 },
+        "Heavy Modular Frame": { points: 10800, tier: 6 },
+        "Magnetic Field Generator": { points: 11000, tier: 8 },
+        "Cooling System": { points: 12006, tier: 7 },
+        "Gas Mask": { points: 14960, tier: 6 },
+        "Jetpack": { points: 16580, tier: 6 },
+        "Xeno-Basher": { points: 17800, tier: 4 },
+        "Nuke Nobelisk": { points: 19600, tier: 8 },
+        "Radio Control Unit": { points: 32352, tier: 7 },
+        "Superposition Oscillator": { points: 37292, tier: 8 },
+        "Uranium Fuel Rod": { points: 43468, tier: 7 },
+        "Hazmat Suit": { points: 54100, tier: 7 },
+        "Fused Modular Frame": { points: 62840, tier: 7 },
+        "Adaptive Control Unit": { points: 76368, tier: 7 },
+        "Supercomputer": { points: 97352, tier: 7 },
+        "Singularity Cell": { points: 114675, tier: 8 },
+        "Plutonium Fuel Rod": { points: 153184, tier: 8 },
+        "Turbo Motor": { points: 240496, tier: 7 },
+        "Neural-Quantum Processor": { points: 248034, tier: 8 },
+        "Pressure Conversion Cube": { points: 255088, tier: 8 },
+        "Hoverpack": { points: 265632, tier: 8 },
+        "Biochemical Sculptor": { points: 301778, tier: 8 },
+        "Assembly Director System": { points: 500176, tier: 8 },
+        "Nuclear Pasta": { points: 538976, tier: 8 },
+        "AI Expansion Server": { points: 597652, tier: 8 },
+        "Thermal Propulsion Rocket": { points: 728508, tier: 8 },
+        "Ballistic Warp Drive": { points: 2895334, tier: 8 }
       }
-      html += `</table><span class="small">Leave blank for items you don’t own</span></div></details>`;
-      document.getElementById("invWrap").innerHTML = html;
-    }
-    window.rebuildInventory = buildInventoryInputs;
-    buildInventoryInputs();
+    };
 
-    // Coupon cost function, current formula as of Satisfactory 1.1
-    function couponFormula(n) {
-      // n is the coupon index (starting from 0), 1st coupon is 0
-      if (n < 3) return 500;
-      let group = Math.ceil((n + 1) / 3) - 1;
-      return 250 * group * group + 1000;
+    /**
+     * Utility functions for common operations
+     */
+    class Utils {
+      /**
+       * Debounce function calls to improve performance
+       * @param {Function} func - Function to debounce
+       * @param {number} wait - Delay in milliseconds
+       * @returns {Function} Debounced function
+       */
+      static debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+          const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+          };
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+        };
+      }
+
+      /**
+       * Create a safe DOM ID from an item name
+       * @param {string} itemName - Item name to convert
+       * @returns {string} Safe DOM ID
+       */
+      static createSafeId(itemName) {
+        return `inv_${itemName.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase()}`;
+      }
+
+      /**
+       * Format numbers with appropriate locale formatting
+       * @param {number} num - Number to format
+       * @returns {string} Formatted number string
+       */
+      static formatNumber(num) {
+        return num.toLocaleString();
+      }
+
+      /**
+       * Sanitize HTML to prevent XSS (basic implementation)
+       * @param {string} str - String to sanitize
+       * @returns {string} Sanitized string
+       */
+      static sanitizeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
     }
 
-    function calc() {
-      let wantCoupons = parseInt(document.getElementById("numCoupons").value) || 1;
-      let currentPts = parseInt(document.getElementById("points").value) || 0;
-      let ptsNeeded = 0, coupons = 0, n = 0, spent = 0;
-      while (coupons < wantCoupons) {
-        let pts = couponFormula(n);
-        if (currentPts < pts) {
-          ptsNeeded += pts - currentPts;
-          ++coupons;
-          currentPts = 0;
-        } else {
-          currentPts -= pts;
-          ++coupons;
+    /**
+     * Input validation functions
+     */
+    class InputValidator {
+      /**
+       * Validate coupon input
+       * @param {string|number} value - Input value
+       * @returns {number} Validated coupon count
+       * @throws {Error} If validation fails
+       */
+      static validateCouponInput(value) {
+        const numValue = parseInt(value);
+        if (isNaN(numValue)) {
+          throw new Error('Number of coupons must be a valid number');
         }
-        ++n;
+        if (numValue < 1) {
+          throw new Error('Number of coupons must be at least 1');
+        }
+        if (numValue > CONFIG.MAX_COUPONS) {
+          throw new Error(`Number of coupons cannot exceed ${CONFIG.MAX_COUPONS}`);
+        }
+        return numValue;
       }
-      let tier = parseInt(document.getElementById("tierSelect").value);
-      let unlocked = getCustomUnlocks();
-      let inv = {};
-      for (let [item] of sortedItems) {
-        let val = document.getElementById("inv_" + item.replace(/[^a-zA-Z0-9]/g,'_'));
-        if (val && val.value) inv[item] = parseInt(val.value) || 0;
+
+      /**
+       * Validate points input (points needed for next coupon)
+       * @param {string|number} value - Input value
+       * @returns {number} Validated points value
+       * @throws {Error} If validation fails
+       */
+      static validatePointsInput(value) {
+        const numValue = parseInt(value);
+        if (isNaN(numValue)) {
+          throw new Error('Points to next coupon must be a valid number');
+        }
+        if (numValue < 0) {
+          throw new Error('Points to next coupon cannot be negative');
+        }
+        if (numValue > CONFIG.MAX_COST) {
+          throw new Error(`Points to next coupon cannot exceed ${Utils.formatNumber(CONFIG.MAX_COST)}`);
+        }
+        // Validate that the points value makes sense for coupon costs
+        if (numValue > 0 && numValue < CONFIG.BASE_COUPON_COST && numValue !== 0) {
+          throw new Error(`Points to next coupon must be 0, ${CONFIG.BASE_COUPON_COST}, or a valid coupon cost`);
+        }
+        return numValue;
       }
-      let rec = sortedItems
-        .filter(([item, pts]) => {
-          if (cannotBeSunk.includes(item)) return false;
-          if (unlocked) return unlocked[item];
-          return (itemTier[item] || 9) <= tier || (itemTier[item] === 9 && tier === 8);
-        })
-        .map(([item, pts])=>{
-          let needed = Math.ceil(ptsNeeded/pts);
-          let have = inv[item] || 0;
-          let canMake = have > 0 ? Math.min(needed, have) : needed;
-          return {item, pts, needed, have, canMake};
-        }).sort((a,b)=>(a.needed-b.needed) || (b.pts-a.pts));
-      let out = `<b>To get ${wantCoupons} coupon${wantCoupons>1?'s':''}, you need ≈${ptsNeeded.toLocaleString()} points:</b><ol>`;
-      for (let r of rec.slice(0,15)) {
-        out += `<li><b>${r.item}</b>: need <b>${r.needed}</b> (${r.pts.toLocaleString()} pts each)`;
-        if (r.have) out += ` | you have: ${r.have}`;
-        out += `</li>`;
+
+      /**
+       * Validate tier input
+       * @param {string|number} value - Input value
+       * @returns {number} Validated tier value
+       * @throws {Error} If validation fails
+       */
+      static validateTierInput(value) {
+        const numValue = parseInt(value);
+        if (isNaN(numValue) || numValue < 1 || numValue > 8) {
+          throw new Error('Tier must be between 1 and 8');
+        }
+        return numValue;
       }
-      out += `</ol><div class="small">Filtering based on your unlocked items or Tier. Event items only available at Tier 8.</div>`;
-      document.getElementById("output").innerHTML = out;
+
+      /**
+       * Validate inventory input
+       * @param {string|number} value - Input value
+       * @returns {number} Validated inventory count
+       */
+      static validateInventoryInput(value) {
+        const numValue = parseInt(value);
+        return isNaN(numValue) || numValue < 0 ? 0 : numValue;
+      }
     }
+
+    /**
+     * Coupon calculation logic
+     */
+    class CouponCalculator {
+      /**
+       * Calculate the cost of the nth coupon
+       * @param {number} n - Coupon number (1-indexed)
+       * @returns {number} Points cost for the nth coupon
+       */
+      static calculateCouponCost(n) {
+        // First 3 coupons cost 500 each
+        if (n <= CONFIG.FIRST_THREE_COUPONS) {
+          return CONFIG.BASE_COUPON_COST;
+        }
+        
+        // Coupons 3001+ cost the maximum amount
+        if (n > CONFIG.HIGH_TIER_COUPON_LIMIT) {
+          return CONFIG.MAX_COST;
+        }
+        
+        // Coupons 4-3000: cost(n) = 250 × (⌈n/3⌉−1)² + 1000
+        const group = Math.ceil(n / CONFIG.COUPON_GROUP_SIZE) - 1;
+        return CONFIG.COST_MULTIPLIER * group * group + CONFIG.BASE_COST_OFFSET;
+      }
+
+      /**
+       * Calculate how many coupons have been printed based on current coupon cost
+       * @param {number} currentCost - Cost of the next coupon to be printed
+       * @returns {number} Estimated number of coupons already printed
+       */
+      static calculateCouponsFromCost(currentCost) {
+        // If cost is 500, could be coupons 1, 2, or 3
+        if (currentCost === CONFIG.BASE_COUPON_COST) {
+          return 1; // Assume they're getting their 2nd coupon (1 already printed)
+        }
+        
+        // If cost is max, they're past coupon 3000
+        if (currentCost >= CONFIG.MAX_COST) {
+          return CONFIG.HIGH_TIER_COUPON_LIMIT;
+        }
+        
+        // For costs between 500 and max, use reverse formula
+        // Number of coupons printed is between 3×√((c-1000)/250) and 3×√((c-1000)/250) + 2
+        const base = Math.sqrt((currentCost - CONFIG.BASE_COST_OFFSET) / CONFIG.COST_MULTIPLIER);
+        const minPrinted = CONFIG.COUPON_GROUP_SIZE * base;
+        const maxPrinted = minPrinted + 2;
+        
+        // Use the middle value for estimation
+        return Math.floor((minPrinted + maxPrinted) / 2);
+      }
+
+      /**
+       * Calculate total points needed for multiple coupons
+       * @param {number} currentCostToNext - Points needed for the next coupon
+       * @param {number} wantCoupons - Number of additional coupons desired
+       * @returns {Object} Calculation results including points needed and coupons already printed
+       */
+      static calculateCumulativeCost(currentCostToNext, wantCoupons) {
+        // Determine how many coupons have already been printed
+        const alreadyPrinted = this.calculateCouponsFromCost(currentCostToNext);
+        
+        let totalNeeded = 0;
+        
+        // First, we need the points for the next coupon (which is partially paid)
+        totalNeeded += currentCostToNext;
+        
+        // Then calculate cost for additional coupons
+        for (let i = 1; i < wantCoupons; i++) {
+          const couponNumber = alreadyPrinted + 1 + i; // +1 because we're getting the next coupon
+          totalNeeded += this.calculateCouponCost(couponNumber);
+        }
+        
+        return {
+          totalPointsNeeded: totalNeeded,
+          alreadyPrinted: alreadyPrinted,
+          nextCouponNumber: alreadyPrinted + 1,
+          finalCouponNumber: alreadyPrinted + wantCoupons
+        };
+      }
+
+      /**
+       * Generate item recommendations based on requirements
+       * @param {number} pointsNeeded - Total points needed
+       * @param {number} selectedTier - Selected tier
+       * @param {Object} customUnlocked - Custom unlocked items
+       * @param {Object} inventory - Current inventory
+       * @returns {Array} Array of recommendations
+       */
+      static generateRecommendations(pointsNeeded, selectedTier, customUnlocked, inventory) {
+        const availableItems = this.getAvailableItems(selectedTier, customUnlocked);
+        
+        return availableItems
+          .map(([itemName, itemData]) => {
+            const needed = Math.ceil(pointsNeeded / itemData.points);
+            const have = inventory[itemName] || 0;
+            const canMake = have > 0 ? Math.min(needed, have) : needed;
+            
+            return {
+              item: itemName,
+              points: itemData.points,
+              needed,
+              have,
+              canMake,
+              efficiency: itemData.points, // Points per item
+              isEvent: itemName.toLowerCase().includes('ficsmas')
+            };
+          })
+          .sort((a, b) => {
+            // Sort by items needed (ascending), then by points per item (descending)
+            const needDiff = a.needed - b.needed;
+            return needDiff !== 0 ? needDiff : b.points - a.points;
+          })
+          .slice(0, CONFIG.MAX_DISPLAY_RECOMMENDATIONS);
+      }
+
+      /**
+       * Get available items based on tier and custom unlocks
+       * @param {number} selectedTier - Selected tier
+       * @param {Object} customUnlocked - Custom unlocked items
+       * @returns {Array} Array of [itemName, itemData] pairs
+       */
+      static getAvailableItems(selectedTier, customUnlocked) {
+        return Object.entries(GAME_DATA.items)
+          .filter(([itemName, itemData]) => {
+            if (GAME_DATA.cannotBeSunk.includes(itemName)) {
+              return false;
+            }
+            
+            if (customUnlocked) {
+              return customUnlocked[itemName];
+            }
+            
+            // Include items from selected tier or below, plus event items for tier 8
+            return itemData.tier <= selectedTier || 
+                   (itemData.tier === 9 && selectedTier === 8);
+          })
+          .sort((a, b) => b[1].points - a[1].points); // Sort by points descending
+      }
+    }
+
+    /**
+     * UI management class
+     */
+    class OptimizerUI {
+      constructor() {
+        this.isLoading = false;
+        this.debouncedRebuildInventory = Utils.debounce(
+          this.buildInventoryInputs.bind(this), 
+          CONFIG.DEBOUNCE_DELAY
+        );
+      }
+
+      /**
+       * Initialize the UI
+       */
+      initialize() {
+        this.attachEventListeners();
+        this.buildInventoryInputs();
+      }
+
+      /**
+       * Attach event listeners to UI elements
+       */
+      attachEventListeners() {
+        const tierSelect = document.getElementById('tierSelect');
+        const customUnlocked = document.getElementById('customUnlocked');
+        
+        if (tierSelect) {
+          tierSelect.addEventListener('change', () => {
+            this.debouncedRebuildInventory();
+          });
+        }
+        
+        if (customUnlocked) {
+          customUnlocked.addEventListener('input', () => {
+            this.debouncedRebuildInventory();
+          });
+        }
+      }
+
+      /**
+       * Display error message to user
+       * @param {string} message - Error message to display
+       */
+      displayError(message) {
+        const container = document.getElementById('errorContainer');
+        if (container) {
+          container.innerHTML = `<div class="error">${Utils.sanitizeHtml(message)}</div>`;
+          // Auto-hide error after 5 seconds
+          setTimeout(() => {
+            container.innerHTML = '';
+          }, 5000);
+        }
+      }
+
+      /**
+       * Clear any displayed errors
+       */
+      clearError() {
+        const container = document.getElementById('errorContainer');
+        if (container) {
+          container.innerHTML = '';
+        }
+      }
+
+      /**
+       * Set loading state
+       * @param {boolean} loading - Whether app is in loading state
+       */
+      setLoading(loading) {
+        this.isLoading = loading;
+        const button = document.getElementById('calculateBtn');
+        const body = document.body;
+        
+        if (button) {
+          button.disabled = loading;
+          button.textContent = loading ? 'Calculating...' : 'Find Best Items';
+        }
+        
+        if (loading) {
+          body.classList.add('loading');
+        } else {
+          body.classList.remove('loading');
+        }
+      }
+
+      /**
+       * Get current tier selection
+       * @returns {number} Selected tier
+       */
+      getCurrentTier() {
+        const tierSelect = document.getElementById('tierSelect');
+        return tierSelect ? parseInt(tierSelect.value) : 8;
+      }
+
+      /**
+       * Parse custom unlocked items from textarea
+       * @returns {Object|null} Object with unlocked items or null if none specified
+       */
+      getCustomUnlocks() {
+        const textarea = document.getElementById('customUnlocked');
+        if (!textarea || !textarea.value.trim()) {
+          return null;
+        }
+
+        const inputText = textarea.value.trim();
+        const itemNames = inputText
+          .replace(/,/g, '\n')
+          .split(/\n/)
+          .map(name => name.trim())
+          .filter(name => name.length > 0);
+
+        if (itemNames.length === 0) {
+          return null;
+        }
+
+        const unlocked = {};
+        const availableItems = Object.keys(GAME_DATA.items);
+        
+        itemNames.forEach(inputName => {
+          // Try exact match first
+          const exactMatch = availableItems.find(item => 
+            item.toLowerCase() === inputName.toLowerCase()
+          );
+          
+          if (exactMatch) {
+            unlocked[exactMatch] = true;
+          } else {
+            // Try partial match
+            const partialMatch = availableItems.find(item =>
+              item.toLowerCase().includes(inputName.toLowerCase()) ||
+              inputName.toLowerCase().includes(item.toLowerCase())
+            );
+            
+            if (partialMatch) {
+              unlocked[partialMatch] = true;
+            }
+          }
+        });
+
+        return Object.keys(unlocked).length > 0 ? unlocked : null;
+      }
+
+      /**
+       * Get current inventory from form inputs
+       * @returns {Object} Inventory object with item counts
+       */
+      getCurrentInventory() {
+        const inventory = {};
+        const inputs = document.querySelectorAll('[id^="inv_"]');
+        
+        inputs.forEach(input => {
+          const itemName = this.getItemNameFromInputId(input.id);
+          if (itemName && input.value) {
+            const count = InputValidator.validateInventoryInput(input.value);
+            if (count > 0) {
+              inventory[itemName] = count;
+            }
+          }
+        });
+        
+        return inventory;
+      }
+
+      /**
+       * Get item name from input ID
+       * @param {string} inputId - Input element ID
+       * @returns {string|null} Item name or null if not found
+       */
+      getItemNameFromInputId(inputId) {
+        if (!inputId.startsWith('inv_')) {
+          return null;
+        }
+        
+        const processedName = inputId.substring(4); // Remove 'inv_' prefix
+        
+        // Find the original item name by matching the processed version
+        return Object.keys(GAME_DATA.items).find(itemName => 
+          Utils.createSafeId(itemName) === inputId
+        );
+      }
+
+      /**
+       * Build inventory input form
+       */
+      buildInventoryInputs() {
+        const container = document.getElementById('inventoryContainer');
+        if (!container) return;
+
+        const tier = this.getCurrentTier();
+        const customUnlocked = this.getCustomUnlocks();
+        const availableItems = CouponCalculator.getAvailableItems(tier, customUnlocked);
+
+        if (availableItems.length === 0) {
+          container.innerHTML = '<p class="small">No items available for the selected tier.</p>';
+          return;
+        }
+
+        let html = '<div class="inventory-container"><table>';
+        html += '<thead><tr><th>Item</th><th>Quantity</th><th>Points Each</th></tr></thead><tbody>';
+
+        availableItems.forEach(([itemName, itemData]) => {
+          const inputId = Utils.createSafeId(itemName);
+          const itemClass = itemName.toLowerCase().includes('ficsmas') ? 'event' : '';
+          
+          html += `
+            <tr>
+              <td class="${itemClass}">${Utils.sanitizeHtml(itemName)}</td>
+              <td>
+                <input 
+                  type="number" 
+                  min="0" 
+                  id="${inputId}" 
+                  style="width: 80px"
+                  placeholder="0"
+                >
+              </td>
+              <td class="small">${Utils.formatNumber(itemData.points)}</td>
+            </tr>
+          `;
+        });
+
+        html += '</tbody></table></div>';
+        html += '<div class="small" style="margin-top: 8px;">Enter quantities for items you currently have in storage.</div>';
+        
+        container.innerHTML = html;
+      }
+
+      /**
+       * Display calculation results
+       * @param {Object} results - Calculation results
+       */
+      displayResults(results) {
+        const container = document.getElementById('resultsContainer');
+        if (!container) return;
+
+        const { 
+          wantCoupons, 
+          pointsNeeded, 
+          recommendations, 
+          alreadyPrinted = 0, 
+          nextCouponNumber = 1, 
+          finalCouponNumber = wantCoupons 
+        } = results;
+        
+        let html = '<div class="result">';
+        
+        // Header with summary
+        html += `<div class="stats">`;
+        html += `<div class="stat-card">`;
+        html += `<div class="stat-value">${wantCoupons}</div>`;
+        html += `<div>Coupon${wantCoupons > 1 ? 's' : ''} Wanted</div>`;
+        html += `</div>`;
+        html += `<div class="stat-card">`;
+        html += `<div class="stat-value">${Utils.formatNumber(pointsNeeded)}</div>`;
+        html += `<div>Total Points Needed</div>`;
+        html += `</div>`;
+        html += `<div class="stat-card">`;
+        html += `<div class="stat-value">${alreadyPrinted}</div>`;
+        html += `<div>Coupons Already Printed</div>`;
+        html += `</div>`;
+        html += `<div class="stat-card">`;
+        html += `<div class="stat-value">#${nextCouponNumber}-${finalCouponNumber}</div>`;
+        html += `<div>Coupon Range</div>`;
+        html += `</div>`;
+        html += `</div>`;
+
+        // Coupon breakdown
+        if (alreadyPrinted > 0 || wantCoupons > 1) {
+          html += '<div style="margin: 16px 0; padding: 12px; background: #2c3036; border-radius: 6px;">';
+          html += '<div class="small">';
+          if (alreadyPrinted > 0) {
+            html += `You have already printed <strong>${alreadyPrinted}</strong> coupon${alreadyPrinted > 1 ? 's' : ''}. `;
+          }
+          html += `This calculation will get you coupon${wantCoupons > 1 ? 's' : ''} <strong>#${nextCouponNumber}`;
+          if (wantCoupons > 1) {
+            html += ` through #${finalCouponNumber}`;
+          }
+          html += '</strong>.';
+          html += '</div>';
+          html += '</div>';
+        }
+
+        // Recommendations
+        if (recommendations.length > 0) {
+          html += '<h3>Recommended Items to Sink:</h3>';
+          html += '<div class="recommendations">';
+          
+          recommendations.forEach(rec => {
+            const itemClass = rec.isEvent ? 'event' : '';
+            html += `<div class="recommendation-item">`;
+            html += `<div class="item-name ${itemClass}">${Utils.sanitizeHtml(rec.item)}</div>`;
+            html += `<div class="item-details">`;
+            html += `Need: <strong>${Utils.formatNumber(rec.needed)}</strong> items `;
+            html += `(${Utils.formatNumber(rec.points)} points each)`;
+            if (rec.have > 0) {
+              html += ` | You have: <strong>${Utils.formatNumber(rec.have)}</strong>`;
+            }
+            html += `</div>`;
+            html += `</div>`;
+          });
+          
+          html += '</div>';
+        } else {
+          html += '<p>No suitable items found for your current tier/unlocks.</p>';
+        }
+
+        // Additional info
+        html += '<div class="small" style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #333;">';
+        html += 'Tips: Items are sorted by efficiency (fewest items needed first). ';
+        html += 'Event items (FICSMAS) are only available during seasonal events. ';
+        html += 'The "Points needed for next coupon" field should match the cost shown in your AWESOME Sink.';
+        html += '</div>';
+        
+        html += '</div>';
+        
+        container.innerHTML = html;
+      }
+    }
+
+    /**
+     * Main optimizer class that coordinates everything
+     */
+    class SatisfactoryOptimizer {
+      constructor() {
+        this.ui = new OptimizerUI();
+      }
+
+      /**
+       * Initialize the optimizer
+       */
+      initialize() {
+        this.ui.initialize();
+      }
+
+      /**
+       * Main calculation function
+       */
+      async calculate() {
+        this.ui.clearError();
+        this.ui.setLoading(true);
+
+        try {
+          // Get and validate inputs
+          const wantCoupons = InputValidator.validateCouponInput(
+            document.getElementById('numCoupons').value
+          );
+          const pointsToNext = InputValidator.validatePointsInput(
+            document.getElementById('points').value
+          );
+          const selectedTier = InputValidator.validateTierInput(
+            this.ui.getCurrentTier()
+          );
+          
+          // Calculate points needed using the new system
+          const calculationResult = CouponCalculator.calculateCumulativeCost(
+            pointsToNext, 
+            wantCoupons
+          );
+
+          // Get user selections
+          const customUnlocked = this.ui.getCustomUnlocks();
+          const inventory = this.ui.getCurrentInventory();
+
+          // Generate recommendations
+          const recommendations = CouponCalculator.generateRecommendations(
+            calculationResult.totalPointsNeeded,
+            selectedTier,
+            customUnlocked,
+            inventory
+          );
+
+          // Display results with additional context
+          this.ui.displayResults({
+            wantCoupons,
+            pointsNeeded: calculationResult.totalPointsNeeded,
+            recommendations,
+            alreadyPrinted: calculationResult.alreadyPrinted,
+            nextCouponNumber: calculationResult.nextCouponNumber,
+            finalCouponNumber: calculationResult.finalCouponNumber
+          });
+
+        } catch (error) {
+          this.ui.displayError(error.message);
+        } finally {
+          this.ui.setLoading(false);
+        }
+      }
+    }
+
+    // Initialize the optimizer when the page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      window.optimizer = new SatisfactoryOptimizer();
+      window.optimizer.initialize();
+    });
   </script>
 </body>
 </html>
