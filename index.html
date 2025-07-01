@@ -2,24 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Satisfactory AWESOME Sink Coupon Optimizer (Full List)</title>
+  <title>Satisfactory AWESOME Sink Coupon Optimizer (Tier & Custom Unlocks)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
     body { font-family: system-ui, sans-serif; background: #23272e; color: #f6f6f7; padding: 24px; }
-    input, button { font-size: 1em; margin: 3px 0 10px 0; padding: 3px 8px; }
+    input, button, select, textarea { font-size: 1em; margin: 3px 0 10px 0; padding: 3px 8px; }
+    textarea { width: 100%; min-height: 54px; }
     .result { background: #181a1b; border-radius: 10px; padding: 12px; margin-top: 10px; }
     table { border-collapse: collapse; width: 100%; }
     th, td { border-bottom: 1px solid #333; padding: 6px 10px; }
     th { background: #32363e; }
     tr:nth-child(even) { background: #262a30; }
     .small { font-size: 0.95em; opacity: 0.7; }
+    .cannot { color: #b55; }
     .event { color: #7fdfff; }
-    .special { color: #ffa07a; }
   </style>
 </head>
 <body>
-  <h2>AWESOME Sink Coupon Optimizer <span class="small">(Full List &amp; Events)</span></h2>
+  <h2>AWESOME Sink Coupon Optimizer <span class="small">(Tier + Custom Unlocks)</span></h2>
   <div>
+    <label>
+      <b>1. Select your unlocked Tier:</b> 
+      <select id="tierSelect" onchange="rebuildInventory()">
+        <option value="1">Tier 1 (Hub Start)</option>
+        <option value="2">Tier 2</option>
+        <option value="3">Tier 3</option>
+        <option value="4">Tier 4</option>
+        <option value="5">Tier 5</option>
+        <option value="6">Tier 6</option>
+        <option value="7">Tier 7</option>
+        <option value="8" selected>Tier 8 (Endgame/Everything)</option>
+      </select>
+    </label>
+    <br>
+    <span class="small">OR paste unlocked items/recipes below (one per line or comma-separated):</span>
+    <textarea id="customUnlocked" placeholder="E.g. Iron Ingot, Reinforced Iron Plate, Computer"></textarea>
+    <br>
     <label>How many coupons do you want? <input id="numCoupons" type="number" value="1" min="1" max="100"></label><br>
     <label>Current points (or points to next coupon): <input id="points" type="number" value="0" min="0"></label>
     <button onclick="calc()">Find Best Items</button>
@@ -28,56 +46,182 @@
   <div id="invWrap"></div>
   <div class="result" id="output"></div>
   <script>
-    // Full item list (based on July 2024 wiki, including FICSMAS & event/special items)
-    const itemPoints = {
-      // FICSMAS/Event items (event label)
-      "Blue FICSMAS Ornament": 1, "FICSIT Coupon": 1, "FICSMAS Gift": 1, "FICSMAS Tree Branch": 2, "Red FICSMAS Ornament": 2, "FICSMAS Bow": 4, "FICSMAS Actual Snow": 5,
-      "Candy Cane": 6, "FICSMAS Ornament Bundle": 100, "FICSMAS Wreath": 630, "FICSMAS Star": 1200, "FICSMAS Wonder Star": 6540, "FICSMAS Decoration": 48, "FICSMAS Ornament": 120,
-      "FICSMAS Bow": 180, "FICSMAS Tree Branch": 24, "FICSMAS Star": 1200, "FICSMAS Candy Cane": 240, "Gingerbread Cookie": 72, "Actual Snow": 18, "Gift": 48,
-      "Red Firework": 750, "Blue Firework": 750, "Gold Firework": 1500,
-      // Regular items (alphabetical, updated)
-      "Iron Ore": 1, "Iron Ingot": 2, "Iron Plate": 6, "Reinforced Iron Plate": 120, "Stitched Iron Plate": 160, "Iron Rod": 4, "Screw": 2,
-      "Copper Ore": 3, "Copper Ingot": 6, "Wire": 6, "Cable": 24, "Copper Sheet": 24, "Copper Powder": 72,
-      "Caterium Ore": 7, "Caterium Ingot": 42, "Quickwire": 17, "Fused Quickwire": 60,
-      "Steel Ingot": 8, "Steel Pipe": 24, "Steel Beam": 64, "Encased Industrial Beam": 528, "Compacted Coal": 28,
-      "Concrete": 12, "Silica": 20, "Quartz Crystal": 50, "Crystal Oscillator": 3072,
-      "Stator": 240, "Rotor": 140, "Motor": 1520, "Turbo Motor": 240496, "Heavy Modular Frame": 10800, "Modular Frame": 408, "Fused Modular Frame": 62840,
-      "Automated Wiring": 1440, "Smart Plating": 520, "Versatile Framework": 1176, "Adaptive Control Unit": 76368, "Radio Control Unit": 32352, "Pressure Conversion Cube": 255088,
-      "Circuit Board": 696, "Computer": 8352, "Supercomputer": 97352, "High-Speed Connector": 3776, "AI Limiter": 920, "Cooling System": 12006, "Heat Sink": 2804,
-      "Battery": 465, "Empty Canister": 60, "Steel Canister": 60, "Empty Fluid Tank": 170, "Aluminum Casing": 393, "Aluminum Ingot": 131, "Alclad Aluminum Sheet": 266, "Aluminum Scrap": 27,
-      "Sulfur": 11, "Sulfuric Acid": 152, "Black Powder": 14, "Smokeless Powder": 58, "Compacted Coal": 28,
-      "Packaged Water": 130, "Packaged Oil": 180, "Packaged Fuel": 270, "Packaged Liquid Biofuel": 370, "Packaged Heavy Oil Residue": 180,
-      "Packaged Turbofuel": 570, "Packaged Alumina Solution": 160, "Packaged Sulfuric Acid": 152, "Packaged Nitric Acid": 412, "Packaged Nitrogen Gas": 312, "Packaged Oxygen": 18,
-      "Packaged Iron Ore": 2, "Packaged Copper Ore": 3, "Packaged Caterium Ore": 12, "Packaged Bauxite": 11, "Packaged Coal": 5, "Packaged Raw Quartz": 12, "Packaged Sulfur": 12, "Packaged Limestone": 3,
-      "Packaged S.A.M. Ore": 5, "Packaged Uranium Ore": 150, "Packaged Uranium Waste": 3000,
-      "Biomass": 12, "Fabric": 140, "Mycelia": 10, "Leaves": 3, "Wood": 30, "Flower Petals": 24, "Alien DNA Capsule": 1000,
-      "Alien Protein": 100, "Alien Power Matrix": 210,
-      "Portable Miner": 56, "Gas Filter": 608, "Iodine-Infused Filter": 2274,
-      "Spiked Rebar": 50, "Stun Rebar": 186, "Shatter Rebar": 332, "Explosive Rebar": 360, "Iron Rebar": 8,
-      "Nobelisk": 152, "Cluster Nobelisk": 1376, "Pulse Nobelisk": 1533, "Gas Nobelisk": 544, "Nuke Nobelisk": 19600,
-      "Rifle Ammo": 25, "Turbo Rifle Ammo": 120, "Homing Rifle Ammo": 855, "Rifle": 9480,
-      "Jetpack": 16580, "Blade Runners": 4088, "Gas Mask": 14960, "Hazmat Suit": 54100, "Parachute": 6080,
-      "Modular Engine": 9960, "Oscillating Crystal": 3072, "Object Scanner": 1400,
-      "Zipline": 5284, "Xeno-Zapper": 1880, "Xeno-Basher": 17800, "Golden Factory Cart™": 1852, "Factory Cart™": 1552,
-      "Assembly Director System": 500176, "Nuclear Pasta": 538976, "AI Expansion Server": 597652, "Ballistic Warp Drive": 2895334,
-      "Nuclear Pasta": 538976, "Superposition Oscillator": 37292, "Singularity Cell": 114675, "Magnetic Field Generator": 11000, "Ficsite Trigon": 1291, "Ficsite Ingot": 1936, "SAM": 20,
-      "SAM Fluctuator": 1968, "Reanimated SAM": 160,
-      "Employee of the Planet Cup": 84, "Cup": 84, "Golden Factory Cart™": 1852,
-      "Plutonium Fuel Rod": 153184, "Plutonium Pellet": 0, "Plutonium Waste": 0, "Uranium Fuel Rod": 43468, "Uranium Waste": 0, "Uranium Ore": 35,
-      "Packaged Rocket Fuel": 1028, "Blade Runners": 4088, "Biochemical Sculptor": 301778, "Hoverpack": 265632,
-      "Thermal Propulsion Rocket": 728508, "Neural-Quantum Processor": 248034, "Singularity Cell": 114675,
-      // A few more "cannot be sunk" are omitted, since they clog input not for coupons.
-    };
+    // Items that cannot be sunk
+    const cannotBeSunk = [
+      "Alien Protein", "Bacon Agaric", "Beryl Nut", "Blue Power Slug", "Encased Plutonium Cell",
+      "FICSIT Coupon", "Ficsonium Fuel Rod", "Ficsonium", "Hatcher Remains", "Hog Remains",
+      "Mercer Sphere", "Non-Fissile Uranium", "Paleberry", "Plutonium Pellet", "Plutonium Waste",
+      "Power Shard", "Purple Power Slug", "Somersloop", "Spitter Remains", "Stinger Remains",
+      "Uranium Waste", "Yellow Power Slug"
+    ];
+    // Points table and unlock tier for each item
+    // If you want to tweak tiers, just edit this mapping!
+    // (Tier: 1=Hub Start, ... 8=Endgame, 9=Event Only)
+    const pointsTable = [
+      [1, ["Blue FICSMAS Ornament", "FICSIT Coupon", "FICSMAS Gift", "Iron Ore"], 9],
+      [2, ["FICSMAS Tree Branch", "Red FICSMAS Ornament"], 9],
+      [2, ["Iron Ingot", "Limestone", "Screws"], 1],
+      [3, ["Coal", "Copper Ore", "Leaves"], 2],
+      [4, ["FICSMAS Bow"], 9],
+      [4, ["Iron Rod"], 1],
+      [5, ["FICSMAS Actual Snow"], 9],
+      [6, ["Candy Cane", "Copper Ingot", "Iron Plate", "Wire"], 1],
+      [7, ["Caterium Ore"], 3],
+      [8, ["Bauxite", "Iron Rebar", "Steel Ingot"], 4],
+      [10, ["Mycelia"], 2],
+      [11, ["Sulfur"], 3],
+      [12, ["Biomass", "Concrete", "Polymer Resin"], 1],
+      [14, ["Black Powder"], 3],
+      [15, ["Raw Quartz"], 3],
+      [17, ["Quickwire"], 3],
+      [18, ["Iron FICSMAS Ornament"], 9],
+      [20, ["Petroleum Coke", "SAM", "Silica"], 4],
+      [24, ["Cable", "Copper Sheet", "Steel Pipe"], 2],
+      [25, ["Rifle Ammo"], 6],
+      [27, ["Aluminum Scrap"], 7],
+      [28, ["Compacted Coal"], 5],
+      [30, ["Snowball", "Wood"], 1],
+      [32, ["Copper FICSMAS Ornament", "Sparkly Fireworks"], 9],
+      [35, ["Uranium"], 7],
+      [40, ["Fancy Fireworks"], 9],
+      [42, ["Caterium Ingot"], 3],
+      [48, ["Solid Biofuel"], 2],
+      [50, ["Quartz Crystal"], 3],
+      [56, ["Portable Miner"], 1],
+      [58, ["Smokeless Powder"], 4],
+      [60, ["Empty Canister", "Rubber", "Sweet Fireworks"], 3],
+      [64, ["Steel Beam"], 4],
+      [72, ["Copper Powder"], 5],
+      [75, ["Plastic"], 5],
+      [84, ["'Employee of the Planet' Cup", "Cup"], 9],
+      [100, ["FICSMAS Ornament Bundle"], 9],
+      [120, ["Reinforced Iron Plate", "Turbo Rifle Ammo"], 2],
+      [125, ["Medicinal Inhaler"], 4],
+      [130, ["Packaged Water"], 4],
+      [131, ["Aluminum Ingot"], 7],
+      [140, ["Fabric", "Rotor"], 3],
+      [147, ["Encased Uranium Cell"], 7],
+      [152, ["Nobelisk", "Packaged Sulfuric Acid"], 5],
+      [160, ["Packaged Alumina Solution", "Reanimated SAM"], 7],
+      [170, ["Empty Fluid Tank"], 5],
+      [180, ["Packaged Heavy Oil Residue", "Packaged Oil"], 5],
+      [186, ["Stun Rebar"], 4],
+      [210, ["Alien Power Matrix"], 8],
+      [240, ["Diamonds", "Stator"], 5],
+      [266, ["Alclad Aluminum Sheet"], 7],
+      [270, ["Packaged Fuel"], 5],
+      [312, ["Packaged Nitrogen Gas"], 8],
+      [332, ["Shatter Rebar"], 5],
+      [360, ["Explosive Rebar"], 5],
+      [370, ["Packaged Liquid Biofuel"], 6],
+      [393, ["Aluminum Casing"], 7],
+      [408, ["Modular Frame"], 4],
+      [412, ["Packaged Nitric Acid"], 8],
+      [465, ["Battery"], 6],
+      [520, ["Smart Plating"], 4],
+      [528, ["Encased Industrial Beam"], 5],
+      [544, ["Gas Nobelisk"], 6],
+      [570, ["Packaged Turbofuel"], 6],
+      [608, ["Gas Filter"], 6],
+      [630, ["FICSMAS Wreath"], 9],
+      [696, ["Circuit Board"], 5],
+      [855, ["Homing Rifle Ammo"], 6],
+      [920, ["AI Limiter"], 5],
+      [960, ["Time Crystal"], 8],
+      [1028, ["Packaged Rocket Fuel"], 7],
+      [1176, ["Versatile Framework"], 6],
+      [1291, ["Ficsite Trigon"], 8],
+      [1376, ["Cluster Nobelisk"], 8],
+      [1400, ["Object Scanner"], 2],
+      [1440, ["Automated Wiring"], 5],
+      [1520, ["Motor"], 4],
+      [1533, ["Pulse Nobelisk"], 7],
+      [1552, ["Factory Cart™"], 3],
+      [1780, ["Dark Matter Crystal"], 8],
+      [1852, ["Golden Factory Cart™"], 9],
+      [1880, ["Xeno-Zapper"], 1],
+      [1936, ["Ficsite Ingot"], 8],
+      [1968, ["Rebar Gun", "SAM Fluctuator"], 5],
+      [2274, ["Iodine-Infused Filter"], 6],
+      [2560, ["Electromagnetic Control Rod"], 7],
+      [2760, ["Chainsaw"], 1],
+      [2804, ["Heat Sink"], 6],
+      [3072, ["Crystal Oscillator"], 6],
+      [3776, ["High-Speed Connector"], 6],
+      [4088, ["Blade Runners"], 3],
+      [5246, ["Packaged Ionized Fuel"], 8],
+      [5284, ["Zipline"], 4],
+      [6080, ["Parachute"], 4],
+      [6480, ["Nobelisk Detonator"], 5],
+      [6540, ["FICSMAS Wonder Star"], 9],
+      [7850, ["Candy Cane Basher"], 9],
+      [8352, ["Computer"], 6],
+      [9480, ["Rifle"], 6],
+      [9960, ["Modular Engine"], 6],
+      [10800, ["Heavy Modular Frame"], 6],
+      [11000, ["Magnetic Field Generator"], 8],
+      [12006, ["Cooling System"], 7],
+      [14960, ["Gas Mask"], 6],
+      [16580, ["Jetpack"], 6],
+      [17800, ["Xeno-Basher"], 4],
+      [19600, ["Nuke Nobelisk"], 8],
+      [32352, ["Radio Control Unit"], 7],
+      [37292, ["Superposition Oscillator"], 8],
+      [43468, ["Uranium Fuel Rod"], 7],
+      [54100, ["Hazmat Suit"], 7],
+      [62840, ["Fused Modular Frame"], 7],
+      [76368, ["Adaptive Control Unit"], 7],
+      [97352, ["Supercomputer"], 7],
+      [114675, ["Singularity Cell"], 8],
+      [153184, ["Plutonium Fuel Rod"], 8],
+      [240496, ["Turbo Motor"], 7],
+      [248034, ["Neural-Quantum Processor"], 8],
+      [255088, ["Pressure Conversion Cube"], 8],
+      [265632, ["Hoverpack"], 8],
+      [301778, ["Biochemical Sculptor"], 8],
+      [500176, ["Assembly Director System"], 8],
+      [538976, ["Nuclear Pasta"], 8],
+      [597652, ["AI Expansion Server"], 8],
+      [728508, ["Thermal Propulsion Rocket"], 8],
+      [2895334, ["Ballistic Warp Drive"], 8]
+    ];
+    // Flatten for select/search, and add unlock tier for each item
+    let itemPoints = {}, itemTier = {};
+    pointsTable.forEach(([pts, items, tier]) => items.forEach(item => {
+      itemPoints[item] = pts;
+      itemTier[item] = tier;
+    }));
     let sortedItems = Object.entries(itemPoints).sort((a, b) => b[1] - a[1]);
-    const couponFormula = n => Math.pow(2, n) * 1000;
+
+    // Helper: process user custom unlocks (case/space tolerant)
+    function getCustomUnlocks() {
+      let list = document.getElementById("customUnlocked").value
+        .replace(/,/g, "\n")
+        .split(/\n/)
+        .map(x => x.trim().toLowerCase())
+        .filter(x => !!x);
+      if (!list.length) return null;
+      // Build a set for fast lookup
+      let unlocked = {};
+      Object.keys(itemPoints).forEach(it => {
+        if (list.includes(it.toLowerCase())) unlocked[it] = true;
+      });
+      return unlocked;
+    }
 
     function buildInventoryInputs() {
+      let tier = parseInt(document.getElementById("tierSelect").value);
+      let unlocked = getCustomUnlocks();
       let html = `<details><summary>Show/Enter Inventory (optional)</summary>
-        <div style="max-height:250px;overflow:auto"><table>`;
+        <div style="max-height:260px;overflow:auto"><table>`;
       for (let [item, pts] of sortedItems) {
+        if (cannotBeSunk.includes(item)) continue;
+        let isAllowed = unlocked
+          ? unlocked[item]
+          : (itemTier[item] || 9) <= tier || (itemTier[item] === 9 && tier === 8);
+        if (!isAllowed) continue;
         let labelClass = "";
         if (item.toLowerCase().includes("ficmas")) labelClass = "event";
-        if (item === "Alien DNA Capsule" || item === "Golden Factory Cart™") labelClass = "special";
         html += `<tr>
           <td class="${labelClass}">${item}</td>
           <td><input type="number" min="0" id="inv_${item.replace(/[^a-zA-Z0-9]/g,'_')}" style="width:70px"></td>
@@ -87,12 +231,21 @@
       html += `</table><span class="small">Leave blank for items you don’t own</span></div></details>`;
       document.getElementById("invWrap").innerHTML = html;
     }
+    window.rebuildInventory = buildInventoryInputs;
     buildInventoryInputs();
+
+    // Coupon cost function, current formula as of Satisfactory 1.1
+    function couponFormula(n) {
+      // n is the coupon index (starting from 0), 1st coupon is 0
+      if (n < 3) return 500;
+      let group = Math.ceil((n + 1) / 3) - 1;
+      return 250 * group * group + 1000;
+    }
 
     function calc() {
       let wantCoupons = parseInt(document.getElementById("numCoupons").value) || 1;
       let currentPts = parseInt(document.getElementById("points").value) || 0;
-      let ptsNeeded = 0, coupons = 0, n = 0;
+      let ptsNeeded = 0, coupons = 0, n = 0, spent = 0;
       while (coupons < wantCoupons) {
         let pts = couponFormula(n);
         if (currentPts < pts) {
@@ -105,24 +258,32 @@
         }
         ++n;
       }
+      let tier = parseInt(document.getElementById("tierSelect").value);
+      let unlocked = getCustomUnlocks();
       let inv = {};
       for (let [item] of sortedItems) {
         let val = document.getElementById("inv_" + item.replace(/[^a-zA-Z0-9]/g,'_'));
         if (val && val.value) inv[item] = parseInt(val.value) || 0;
       }
-      let rec = sortedItems.map(([item, pts])=>{
-        let needed = Math.ceil(ptsNeeded/pts);
-        let have = inv[item] || 0;
-        let canMake = have > 0 ? Math.min(needed, have) : needed;
-        return {item, pts, needed, have, canMake};
-      }).sort((a,b)=>(a.needed-b.needed) || (b.pts-a.pts));
+      let rec = sortedItems
+        .filter(([item, pts]) => {
+          if (cannotBeSunk.includes(item)) return false;
+          if (unlocked) return unlocked[item];
+          return (itemTier[item] || 9) <= tier || (itemTier[item] === 9 && tier === 8);
+        })
+        .map(([item, pts])=>{
+          let needed = Math.ceil(ptsNeeded/pts);
+          let have = inv[item] || 0;
+          let canMake = have > 0 ? Math.min(needed, have) : needed;
+          return {item, pts, needed, have, canMake};
+        }).sort((a,b)=>(a.needed-b.needed) || (b.pts-a.pts));
       let out = `<b>To get ${wantCoupons} coupon${wantCoupons>1?'s':''}, you need ≈${ptsNeeded.toLocaleString()} points:</b><ol>`;
       for (let r of rec.slice(0,15)) {
         out += `<li><b>${r.item}</b>: need <b>${r.needed}</b> (${r.pts.toLocaleString()} pts each)`;
         if (r.have) out += ` | you have: ${r.have}`;
         out += `</li>`;
       }
-      out += `</ol><div class="small">Full item list including events & specials! Powered by MrReceptive & ChatGPT.</div>`;
+      out += `</ol><div class="small">Filtering based on your unlocked items or Tier. Event items only available at Tier 8.</div>`;
       document.getElementById("output").innerHTML = out;
     }
   </script>
